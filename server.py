@@ -9,10 +9,6 @@ users_data = {}
 database = {}
 
 
-def is_pass_strong():
-    pass
-
-
 @server.on('add_user')
 def add_user(sid, user_data):
     # while it wasn't exis: ask the user enter another user name

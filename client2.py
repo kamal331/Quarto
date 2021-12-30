@@ -1,5 +1,6 @@
 from argon2 import PasswordHasher, Type
 from socketio import *
+from getpass import getpass
 
 client = Client()
 client.connect("http://127.0.0.1:5000")
@@ -64,18 +65,32 @@ def sign_up():
     So if it takes like 20 second, don't worry. Because this hash algorithm is 
     slow!\n
     3) We do Not get any other data. because it's not our business. 
-    Your age, your name, your last name, etc... are all your business. 
+    Your age, your name, your last name, etc... are all your business.\n
+    4) make sure to choose a strong password. It means your password must
+    include Capital letter (A-Z) + Small letter (a-z) + numbers(0-9) + 
+    symbols ( !@#$%^&*()-}{? ). And make sure that it has atleast 15 character
+    Example of a great password: DLy$Bds2}bS!7Mis^d1AdV7%pSBrQ@
     ''')
     user_name = input('User Name: ')
-    password = input('Password: ')
-    confirm_password = input('enter your password again: ')
+    password = getpass()  # getting hiden pass for security
+    while not is_pass_Strong(password):
+        print(('your password is not strong enough'))
+        password = getpass()
+
+    print('enter your password again')
+    confirm_password = getpass()
 
     while not confirm_pass(password, confirm_password):
         print('Sorry \U0001F613. second password you entered, doesn\'t match with first password')
         confirm_password = input('enter your password again: ')
+
     email = input(
-        '''e-mail: (optional. You do NOT oblidge to enter your e-mail address)
+        '''E-mail: (optional. You do NOT oblidge to enter your e-mail address)
         if you Don,t want, just enter "0": ''')
+    while not email_validity(email):
+        print('your email is not valid. eneter another one.')
+        email = input('E-mail: ')
+
     confirm = input(
         'Do you want to sign-up? write "yes". If you don\'t, write "no" to back to the menu: ').lower()
     if confirm == 'yes':
@@ -83,6 +98,7 @@ def sign_up():
     else:
         # do pass to menu. ye tabeh tarif kon baraye back to manu
         pass
+
     # we don't pass hashed password to server!
     password = argon2_hash(password)
     user_data = {
@@ -97,6 +113,39 @@ def sign_up():
     #    'email': email
     # }
     # return user_data
+
+
+def is_pass_Strong(password):
+    up = 0
+    low = 0
+    num = 0
+    symb = 0
+    if len(password) < 15:  # password lenght must be 15 or more character
+        return False
+
+    for char in password:
+        if char.isupper():
+            up += 1
+
+        elif char.islower():
+            low += 1
+
+        elif char.isnumeric():
+            num += 1
+
+        else:
+            symb += 1
+
+    if up >= 3 and low >= 3 and symb >= 3 and num >= 3:
+        return True
+
+    return False
+
+
+def email_validity(email):
+    if '@' in email and '.' in email:
+        return True
+    return False
 
 
 def login():
