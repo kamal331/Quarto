@@ -34,8 +34,8 @@ def confirm_pass(password, confirm_password):
 
 def argon2_hash(password):
     ph = PasswordHasher(
-        memory_cost=65536,
-        time_cost=400,
+        memory_cost=65000,  # 256000
+        time_cost=4,  # 400
         parallelism=2,
         hash_len=32,
         type=Type.ID
@@ -54,15 +54,15 @@ def sign_up():
     enter your e-mail address. If you enter your email address you can
     recover your account if you forgot your password. So if you don't 
     provide your e-mail address make sure you write your password and
-    store it in safe place.\n
+    store it in safe place.
     Warning: if you lost your password and you didn't provide your e-mail
     address, there is NO way to recover your account as we store your
-    password in hash type
+    password in hash type. \n
     2) we don't store your password in plain text. I use "Argon2" algorithm
     which is one of the best options available for hishign. The only con is 
     slow. But your security is important your should choose security over speed.
     So if it takes like 20 second, don't worry. Because this hash algorithm is 
-    slow!
+    slow!\n
     3) We do Not get any other data. because it's not our business. 
     Your age, your name, your last name, etc... are all your business. 
     ''')
@@ -70,25 +70,33 @@ def sign_up():
     password = input('Password: ')
     confirm_password = input('enter your password again: ')
 
-    while confirm_pass(password, confirm_password):
-        print('Sorry \U0001F613 second password you entered, doesn\'t match with first password')
+    while not confirm_pass(password, confirm_password):
+        print('Sorry \U0001F613. second password you entered, doesn\'t match with first password')
         confirm_password = input('enter your password again: ')
     email = input(
         '''e-mail: (optional. You do NOT oblidge to enter your e-mail address)
-        if you Don,t want, just enter "0" ''')
+        if you Don,t want, just enter "0": ''')
     confirm = input(
-        'Do you want to sign-up? write "yes". If you don\'t, write "no" to back to the menu').lower()
+        'Do you want to sign-up? write "yes". If you don\'t, write "no" to back to the menu: ').lower()
     if confirm == 'yes':
         pass
     else:
         # do pass to menu. ye tabeh tarif kon baraye back to manu
         pass
+    # we don't pass hashed password to server!
+    password = argon2_hash(password)
     user_data = {
-        'user_name': user_name,
-        'password': password,
-        'email': email
+        f'{user_name}': {
+            'password': password,
+            'email': email}
     }
     return user_data
+    # user_data = {
+    #    'user_name': user_name,
+    #    'password': password,
+    #    'email': email
+    # }
+    # return user_data
 
 
 def login():
@@ -97,12 +105,30 @@ def login():
     password = argon2_hash(password)  # hashing it
 
 
-loggin_info = {'user_name': user_name, 'age': age}
+operation = input(''' What do you want to do?
+1) Login (enter 1)
+2) Leader board (enter 2)
+3) sign-up (enter 3)
+''')  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
 
-client.emit('welcome', data=loggin_info, callback=resp)
+if operation == '1':
+    login()
 
-name = input('enter name: ')
-result = {'user1': user_name, 'user2': name}
+elif operation == '2':
+    # leader() ezafe kon
+    pass
+
+elif operation == '3':
+    user_data = sign_up()
+
+client.emit('add_user', user_data)
+
+# loggin_info = {'user_name': user_name, 'age': age}
+
+#client.emit('welcome', data=loggin_info, callback=resp)
+
+# name = input('enter name: ')
+#result = {'user1': user_name, 'user2': name}
 
 
-client.emit('start_game', mdata=loggin_info, callback=resp)
+#client.emit('start_game', mdata=loggin_info, callback=resp)
