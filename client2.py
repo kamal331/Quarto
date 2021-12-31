@@ -2,6 +2,11 @@ from argon2 import PasswordHasher, Type
 from socketio import *
 from getpass import getpass
 
+import os
+import binascii
+from backports.pbkdf2 import pbkdf2_hmac
+
+
 client = Client()
 client.connect("http://127.0.0.1:5000")
 
@@ -59,11 +64,9 @@ def sign_up():
     Warning: if you lost your password and you didn't provide your e-mail
     address, there is NO way to recover your account as we store your
     password in hash type. \n
-    2) we don't store your password in plain text. I use "Argon2" algorithm
-    which is one of the best options available for hishign. The only con is 
-    slow. But your security is important your should choose security over speed.
-    So if it takes like 20 second, don't worry. Because this hash algorithm is 
-    slow!\n
+    2) we don't store your password in plain text. I use "PBKDF2" hash 
+    algorithm which is recommended by "NIST" (National Institute of
+    Standards and Technology)   ---> NIST Special Publication 800-63B\n
     3) We do Not get any other data. because it's not our business. 
     Your age, your name, your last name, etc... are all your business.\n
     4) make sure to choose a strong password. It means your password must
@@ -109,7 +112,7 @@ def sign_up():
         pass
 
     # we don't pass hashed password to server!
-    password = argon2_hash(password)
+    password = pbkdf2_hash(password)
     user_data = {
         f'{user_name}': {
             'password': password,
@@ -131,7 +134,7 @@ def is_user_name_valid(user_name):
     # Try another one''')
 
 
-def resp(response):
+def resp(response):  # user name sign-up response
     global check_user_name
     check_user_name = False
     if not response:
@@ -170,6 +173,13 @@ def is_pass_Strong(password):
     return False
 
 
+def pbkdf2_hash(password):
+    salt = binascii.unhexlify('aaef2d3f4d77ac66e9c5a6c3d8f921d1')
+    passwd = f"{password}".encode("utf8")
+    key = pbkdf2_hmac("sha256", passwd, salt, 50000, 32)
+    return binascii.hexlify(key)
+
+
 def email_validity(email):
     if ('@' in email and '.' in email) or (email == '0'):
         return True
@@ -179,20 +189,28 @@ def email_validity(email):
 def login():
     user_name = input('User Name: ')
     password = getpass()
-    password = argon2_hash(password)  # hashing it
+    password = pbkdf2_hash(password)
+    password = {'password': password}  # creating dict
     login_info = {}
-    value = {'password': password}
-    login_info[user_name] = value
+    login_info[user_name] = password
+    print(login_info)
     client.emit('ckeck_login_info', login_info,
-                user_name, callback=login_resp)
+                user_name, callback=check_login_resp)
+
+    # password = argon2_hash(password)  # hashing it
+    #login_info = {}
+    #value = {'password': password}
+    #login_info[user_name] = value
+    # client.emit('ckeck_login_info', login_info,
+    #            user_name, callback=login_resp)
 
 
-def login_resp(response):
+@client.on('check_login_resp')
+def check_login_resp(response):
     if response:
-        print('Successfully loged in!')
-    else:
-        print('Your login data in incorect. Try again.')
-        return login()
+        return True
+    print('Incorrect login info! Try again.')
+    login()
 
 
 operation = input(''' What do you want to do?

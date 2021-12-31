@@ -8,7 +8,7 @@ server = Server(async_mode='gevent')
 # users_data = {}
 
 database = {'james_123': {
-    'password': 'Hello'}
+    'password': "b'80d245bd55dd65ab9ac81ec3233a8d394335b5d191e2ed0d1c8d29952b3fcfa7'"}
 }
 
 
@@ -38,15 +38,13 @@ def user_name_validity(sid, user_name):  # for sign-up.
 
 @server.on('ckeck_login_info')
 def ckeck_login_info(sid, login_info, user_name):
+    print(login_info)
     return database[user_name]['password'] == login_info[user_name]['password']
 
-    # if login_info
-    # pass  # !!!!!!!!!!!!!!!!!
 
-
-@server.on('send_pass_hash')
-def send_pass_hash(sid, user_name):  # room=player[0]
-    server.emit('get_pass_hash_resp', database[user_name]['password'])
+# @server.on('send_pass_hash')
+# def send_pass_hash(sid, user_name):  # room=player[0]
+#    server.emit('get_pass_hash_resp', database[user_name]['password'])
 
 
 """def _is_user_name_exist(user_name):
