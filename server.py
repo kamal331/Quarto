@@ -4,9 +4,9 @@ from gevent import pywsgi
 server = Server(async_mode='gevent')
 # name_list = []  # (name, age)
 # games = []  # [(name1, age1), (name2, age2)]
-users_data = {}
+# users_data = {}
 
-database = {}
+database = {'james_123': 1}
 
 
 @server.on('add_user')
@@ -15,6 +15,28 @@ def add_user(sid, user_data):
     # albate in bayad toye client darkhast ersal she hengam neveshtan user_name
     database.update(user_data)
     print(database)
+
+
+@server.on('user_name_validity')
+def user_name_validity(sid, user_name):  # for sign-up.
+    if len(user_name) <= 3:
+        return False
+
+    for char in user_name:  # space and sumbols must not be in user_name.
+        if char in ''' !@#$%^&*()-=+`~|}]{['"?/\.<:;,''':
+            print('user name must not include any symbols (except "_")')
+            return False
+
+    if user_name in database:
+        return False
+
+    return True
+
+
+@server.on('ckeck_login_info')
+def ckeck_login_info(sid, login_info):
+    # if login_info
+    pass  # !!!!!!!!!!!!!!!!!
 
 
 """def _is_user_name_exist(user_name):

@@ -21,10 +21,6 @@ def disconnect():
     print("I'm disconnected")
 
 
-def resp(response):
-    print(response)
-
-
 def start_game_resp(response):
     print(response)
 
@@ -47,9 +43,13 @@ def argon2_hash(password):
     return passwordHash
 
 
+check_user_name = False
+
+
 def sign_up():
+    global check_user_name
     print('''READ THIS:\n
-    Your data, your right.\n
+    Your data, your right\U0001F60A.\n
     1) We value your privacy. We do NOT collect any kind of personal data
     your e-mail is a kind of personal data. So your are not obliged to 
     enter your e-mail address. If you enter your email address you can
@@ -69,9 +69,17 @@ def sign_up():
     4) make sure to choose a strong password. It means your password must
     include Capital letter (A-Z) + Small letter (a-z) + numbers(0-9) + 
     symbols ( !@#$%^&*()-}{? ). And make sure that it has atleast 15 character
-    Example of a great password: DLy$Bds2}bS!7Mis^d1AdV7%pSBrQ@
+    Example of a great password: DLy$Bds2}bS!7Mis^d1AdV7%pSBrQ@\n
+    5) Your user name must not include symbols (Except "_") and it must
+    be at least 4 character. If you are confident that you entered valid user name,
+    and you cannot sign-up, it's because your choosen user name is same as
+    another person's user name. So you must pick another thing!
     ''')
-    user_name = input('User Name: ')
+    user_name = 'a'
+    is_user_name_valid(user_name='a')
+    #user_name = input('User Name: ')
+    while not check_user_name:
+        a = 1
     password = getpass()  # getting hiden pass for security
     while not is_pass_Strong(password):
         print(('your password is not strong enough'))
@@ -88,7 +96,7 @@ def sign_up():
         '''E-mail: (optional. You do NOT oblidge to enter your e-mail address)
         if you Don,t want, just enter "0": ''')
     while not email_validity(email):
-        print('your email is not valid. eneter another one.')
+        print('your e-mail is not valid. eneter another one.')
         email = input('E-mail: ')
 
     confirm = input(
@@ -113,6 +121,25 @@ def sign_up():
     #    'email': email
     # }
     # return user_data
+
+
+def is_user_name_valid(user_name):
+    user_name = input('User Name: ')
+    client.emit('user_name_validity', user_name, callback=resp)
+    # print('''Sorry this user name has been given to another player \U0001F61E.
+    # Try another one''')
+
+
+def resp(response):
+    global check_user_name
+    check_user_name = False
+    if not response:
+        print('''Your user name must not include symbols (Except "_") and it must
+    be at least 4 character. If you are confident that you entered valid user name,
+    and you cannot sign-up, it's because your choosen user name is same as
+    another person's user name. So you must pick another thing!''')
+        is_user_name_valid(user_name='a')
+    check_user_name = True
 
 
 def is_pass_Strong(password):
@@ -143,15 +170,17 @@ def is_pass_Strong(password):
 
 
 def email_validity(email):
-    if '@' in email and '.' in email:
+    if ('@' in email and '.' in email) or (email == '0'):
         return True
     return False
 
 
 def login():
     user_name = input('User Name:')
-    password = input('Password:')
+    password = getpass()
     password = argon2_hash(password)  # hashing it
+    login_info = {}
+    login_info[user_name] = password
 
 
 operation = input(''' What do you want to do?
@@ -181,3 +210,9 @@ client.emit('add_user', user_data)
 
 
 #client.emit('start_game', mdata=loggin_info, callback=resp)
+"""
+user_name = input('User Name: ')
+    
+    while not is_user_name_valid(user_name):
+        user_name = input('User Name: ')
+"""
