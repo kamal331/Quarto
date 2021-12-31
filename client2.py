@@ -177,11 +177,22 @@ def email_validity(email):
 
 
 def login():
-    user_name = input('User Name:')
+    user_name = input('User Name: ')
     password = getpass()
     password = argon2_hash(password)  # hashing it
     login_info = {}
-    login_info[user_name] = password
+    value = {'password': password}
+    login_info[user_name] = value
+    client.emit('ckeck_login_info', login_info,
+                user_name, callback=login_resp)
+
+
+def login_resp(response):
+    if response:
+        print('Successfully loged in!')
+    else:
+        print('Your login data in incorect. Try again.')
+        return login()
 
 
 operation = input(''' What do you want to do?
@@ -200,7 +211,7 @@ elif operation == '2':
 elif operation == '3':
     user_data = sign_up()
 
-client.emit('add_user', user_data)
+# client.emit('add_user', user_data)
 
 # loggin_info = {'user_name': user_name, 'age': age}
 

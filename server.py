@@ -1,3 +1,4 @@
+from signal import pthread_sigmask
 from socketio import *
 from gevent import pywsgi
 
@@ -6,7 +7,9 @@ server = Server(async_mode='gevent')
 # games = []  # [(name1, age1), (name2, age2)]
 # users_data = {}
 
-database = {'james_123': 1}
+database = {'james_123': {
+    'password': 'Hello'}
+}
 
 
 @server.on('add_user')
@@ -34,9 +37,16 @@ def user_name_validity(sid, user_name):  # for sign-up.
 
 
 @server.on('ckeck_login_info')
-def ckeck_login_info(sid, login_info):
+def ckeck_login_info(sid, login_info, user_name):
+    return database[user_name]['password'] == login_info[user_name]['password']
+
     # if login_info
-    pass  # !!!!!!!!!!!!!!!!!
+    # pass  # !!!!!!!!!!!!!!!!!
+
+
+@server.on('send_pass_hash')
+def send_pass_hash(sid, user_name):  # room=player[0]
+    server.emit('get_pass_hash_resp', database[user_name]['password'])
 
 
 """def _is_user_name_exist(user_name):
