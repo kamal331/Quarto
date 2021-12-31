@@ -30,7 +30,7 @@ def user_name_validity(sid, user_name):  # for sign-up.
     if user_name in database:
         return False
 
-    return True
+    return user_name
 
 
 @server.on('ckeck_login_info')

@@ -80,6 +80,7 @@ def sign_up():
     #user_name = input('User Name: ')
     while not check_user_name:
         a = 1
+    user_name = check_user_name
     password = getpass()  # getting hiden pass for security
     while not is_pass_Strong(password):
         print(('your password is not strong enough'))
@@ -139,7 +140,7 @@ def resp(response):
     and you cannot sign-up, it's because your choosen user name is same as
     another person's user name. So you must pick another thing!''')
         is_user_name_valid(user_name='a')
-    check_user_name = True
+    check_user_name = response
 
 
 def is_pass_Strong(password):
