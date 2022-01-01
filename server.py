@@ -7,9 +7,17 @@ server = Server(async_mode='gevent')
 # games = []  # [(name1, age1), (name2, age2)]
 # users_data = {}
 
+""" Must me added
+    Licence info
+"""
+
 database = {'james_123': {
-    'password': "b'80d245bd55dd65ab9ac81ec3233a8d394335b5d191e2ed0d1c8d29952b3fcfa7'"}
+    'password': "b'80d245bd55dd65ab9ac81ec3233a8d394335b5d191e2ed0d1c8d29952b3fcfa7'",
+    'email': 0
 }
+}
+
+leader_board = {}
 
 
 @server.on('add_user')
@@ -34,6 +42,11 @@ def user_name_validity(sid, user_name):  # for sign-up.
         return False
 
     return user_name
+
+
+@server.on('add_user_to_leader_board')
+def add_user_to_leader_board(sid, leader_board_info):
+    leader_board.update(leader_board_info)
 
 
 @server.on('ckeck_login_info')

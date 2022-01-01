@@ -110,15 +110,24 @@ def sign_up():
     else:
         # do pass to menu. ye tabeh tarif kon baraye back to manu
         pass
-
+    wins = 0
+    losses = 0
+    leader_board_info = {}
+    leader_board_info[user_name] = {
+        'wins': wins,
+        'losses': losses
+    }
+    client.emit('add_user_to_leader_board', leader_board_info)
     # we don't pass hashed password to server!
     password = pbkdf2_hash(password)
     user_data = {
         f'{user_name}': {
             'password': password,
-            'email': email}
+            'email': email
+        }
     }
-    return user_data
+    client.emit('add_user', user_data)
+    # return user_data
     # user_data = {
     #    'user_name': user_name,
     #    'password': password,
