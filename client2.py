@@ -1,3 +1,4 @@
+from asyncio import sleep
 from argon2 import PasswordHasher, Type
 from socketio import *
 from getpass import getpass
@@ -8,12 +9,11 @@ from backports.pbkdf2 import pbkdf2_hmac
 
 
 client = Client()
-client.connect("http://127.0.0.1:5000")
 
 
 @client.event
 def connect():
-    print("I'm connected")
+    print("connected")
 
 
 @client.event
@@ -23,7 +23,7 @@ def connect_error(data):
 
 @client.event()
 def disconnect():
-    print("I'm disconnected")
+    print("Disconnected")
 
 
 def start_game_resp(response):
@@ -66,7 +66,7 @@ def sign_up():
     password in hash type. \n
     2) we don't store your password in plain text. I use "PBKDF2" hash 
     algorithm which is recommended by "NIST" (National Institute of
-    Standards and Technology)   ---> NIST Special Publication 800-63B\n
+    Standards and Technology)   ---> NIST Special Publication SP800-63B-3\n
     3) We do Not get any other data. because it's not our business. 
     Your age, your name, your last name, etc... are all your business.\n
     4) make sure to choose a strong password. It means your password must
@@ -106,27 +106,24 @@ def sign_up():
     confirm = input(
         'Do you want to sign-up? write "yes". If you don\'t, write "no" to back to the menu: ').lower()
     if confirm == 'yes':
-        pass
-    else:
-        # do pass to menu. ye tabeh tarif kon baraye back to manu
-        pass
-    wins = 0
-    losses = 0
-    leader_board_info = {}
-    leader_board_info[user_name] = {
-        'wins': wins,
-        'losses': losses
-    }
-    client.emit('add_user_to_leader_board', leader_board_info)
-    # we don't pass hashed password to server!
-    password = pbkdf2_hash(password)
-    user_data = {
-        f'{user_name}': {
-            'password': password,
-            'email': email
+        wins = 0
+        losses = 0
+        leader_board_info = {}
+        leader_board_info[user_name] = {
+            'wins': wins,
+            'losses': losses
         }
-    }
-    client.emit('add_user', user_data)
+        client.emit('add_user_to_leader_board', leader_board_info)
+        # we don't pass hashed password to server!
+        password = pbkdf2_hash(password)
+        user_data = {
+            f'{user_name}': {
+                'password': password,
+                'email': email
+            }
+        }
+        client.emit('add_user', user_data)
+        login()
     # return user_data
     # user_data = {
     #    'user_name': user_name,
@@ -134,6 +131,9 @@ def sign_up():
     #    'email': email
     # }
     # return user_data
+    else:
+        # do pass to menu. ye tabeh tarif kon baraye back to manu
+        start()
 
 
 def is_user_name_valid(user_name):
@@ -196,15 +196,15 @@ def email_validity(email):
 
 
 def login():
+    print('''Welcome to login page \U0001F603 ''')
     user_name = input('User Name: ')
     password = getpass()
     password = pbkdf2_hash(password)
     password = {'password': password}  # creating dict
     login_info = {}
     login_info[user_name] = password
-    print(login_info)
     client.emit('ckeck_login_info', login_info,
-                user_name, callback=check_login_resp)
+                callback=check_login_resp)
 
     # password = argon2_hash(password)  # hashing it
     #login_info = {}
@@ -222,21 +222,36 @@ def check_login_resp(response):
     login()
 
 
-operation = input(''' What do you want to do?
-1) Login (enter 1)
-2) Leader board (enter 2)
-3) sign-up (enter 3)
-''')  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
+def request_leader_board():
+    client.emit('give_leader_board')
 
-if operation == '1':
-    login()
 
-elif operation == '2':
-    # leader() ezafe kon
-    pass
+@client.on('get_leader_board')
+def get_leader_board(leader_board):
+    print(leader_board)
 
-elif operation == '3':
-    user_data = sign_up()
+
+def start():
+    operation = input(''' What do you want to do?
+    1) Login (enter 1)
+    2) Leader board (enter 2)
+    3) sign-up (enter 3)
+    ''')  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
+
+    if operation == '1':
+        login()
+
+    elif operation == '2':
+        request_leader_board()
+
+    elif operation == '3':
+        user_data = sign_up()
+
+
+client.connect("http://127.0.0.1:5000")
+first_time = False
+start()
+first_time = True
 
 # client.emit('add_user', user_data)
 

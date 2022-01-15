@@ -1,4 +1,6 @@
+from select import select
 from signal import pthread_sigmask
+from time import sleep
 from socketio import *
 from gevent import pywsgi
 
@@ -13,7 +15,9 @@ server = Server(async_mode='gevent')
 
 database = {'james_123': {
     'password': "b'80d245bd55dd65ab9ac81ec3233a8d394335b5d191e2ed0d1c8d29952b3fcfa7'",
-    'email': 0
+    'email': 0,
+    'wins': 0,
+    'losses': 0
 }
 }
 
@@ -25,7 +29,7 @@ def add_user(sid, user_data):
     # while it wasn't exis: ask the user enter another user name
     # albate in bayad toye client darkhast ersal she hengam neveshtan user_name
     database.update(user_data)
-    print(database)
+    print(database)  # delete after end
 
 
 @server.on('user_name_validity')
@@ -47,14 +51,22 @@ def user_name_validity(sid, user_name):  # for sign-up.
 @server.on('add_user_to_leader_board')
 def add_user_to_leader_board(sid, leader_board_info):
     leader_board.update(leader_board_info)
+    print(leader_board)
 
 
 @server.on('ckeck_login_info')
-def ckeck_login_info(sid, login_info, user_name):
-    print(login_info)
-    return database[user_name]['password'] == login_info[user_name]['password']
+def ckeck_login_info(sid, login_info):
+    login_check = False
+    for k_login in login_info:
+        for k_database in database:
+            if login_info[k_login]['password'] == database[k_database]['password']:
+                login_check = True
+    return login_check
 
 
+@server.on('give_leader_board')
+def give_leader_board(sid):
+    server.emit('get_leader_board', leader_board)
 # @server.on('send_pass_hash')
 # def send_pass_hash(sid, user_name):  # room=player[0]
 #    server.emit('get_pass_hash_resp', database[user_name]['password'])
