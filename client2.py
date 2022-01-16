@@ -97,14 +97,16 @@ def sign_up():
         confirm_password = input('enter your password again: ')
 
     email = input(
-        '''E-mail: (optional. You do NOT oblidge to enter your e-mail address)
+        '''E-mail: (optional. You are NOT forced to enter your e-mail address.
+        It is your privacy. Respect your privacy. Don't give your personal info
+        to anyone.(includes us \U0001F9F1))
         if you Don,t want, just enter "0": ''')
     while not email_validity(email):
         print('your e-mail is not valid. eneter another one.')
         email = input('E-mail: ')
 
     confirm = input(
-        'Do you want to sign-up? write "yes". If you don\'t, write "no" to back to the menu: ').lower()
+        'Do you want to sign-up? write "yes". If you don\'t, write any other thing to back to the menu: ').lower()
     if confirm == 'yes':
         wins = 0
         losses = 0
@@ -150,7 +152,7 @@ def resp(response):  # user name sign-up response
         print('''Your user name must not include symbols (Except "_") and it must
     be at least 4 character. If you are confident that you entered valid user name,
     and you cannot sign-up, it's because your choosen user name is same as
-    another person's user name. So you must pick another thing!''')
+    another person's user name. So you must pick another thing! \U0001F937''')
         is_user_name_valid(user_name='a')
     check_user_name = response
 
@@ -190,8 +192,13 @@ def pbkdf2_hash(password):
 
 
 def email_validity(email):
+    for char in email:
+        if char in ''' !#$%^&*()-=+`~|}]{['"?/\<:;,''':
+            return False
+
     if ('@' in email and '.' in email) or (email == '0'):
         return True
+
     return False
 
 
@@ -232,7 +239,8 @@ def get_leader_board(leader_board):
 
 
 def start():
-    operation = input(''' What do you want to do?
+    operation = input(''' Hi \U0001F64B
+    What do you want to do?
     1) Login (enter 1)
     2) Leader board (enter 2)
     3) sign-up (enter 3)
@@ -246,6 +254,10 @@ def start():
 
     elif operation == '3':
         user_data = sign_up()
+
+    else:
+        print('Sorry. you wrote something that is invalid. please enter "1" or "2" or "3"')
+        start()
 
 
 client.connect("http://127.0.0.1:5000")

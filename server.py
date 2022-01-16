@@ -3,7 +3,6 @@ from signal import pthread_sigmask
 from time import sleep
 from socketio import *
 from gevent import pywsgi
-
 server = Server(async_mode='gevent')
 # name_list = []  # (name, age)
 # games = []  # [(name1, age1), (name2, age2)]
@@ -59,8 +58,9 @@ def ckeck_login_info(sid, login_info):
     login_check = False
     for k_login in login_info:
         for k_database in database:
-            if login_info[k_login]['password'] == database[k_database]['password']:
-                login_check = True
+            if k_login == k_database:
+                if login_info[k_login]['password'] == database[k_database]['password']:
+                    login_check = True
     return login_check
 
 
