@@ -1,4 +1,4 @@
-from asyncio import sleep
+import time
 from argon2 import PasswordHasher, Type
 from socketio import *
 from getpass import getpass
@@ -49,10 +49,12 @@ def argon2_hash(password):
 
 
 check_user_name = False
+is_check_user_name_done = False
 
 
 def sign_up():
     global check_user_name
+    global is_check_user_name_done
     print('''READ THIS:\n
     Your data, your right\U0001F60A.\n
     1) We value your privacy. We do NOT collect any kind of personal data
@@ -78,12 +80,14 @@ def sign_up():
     and you cannot sign-up, it's because your choosen user name is same as
     another person's user name. So you must pick another thing!
     ''')
-    user_name = 'a'
-    is_user_name_valid(user_name='a')
     #user_name = input('User Name: ')
     while not check_user_name:
-        a = 1
-    user_name = check_user_name
+        is_check_user_name_done = False
+        user_name = input('User name: ')
+        s = is_user_name_valid(user_name)
+        while not is_check_user_name_done:  # avoid race condition
+            pass
+
     password = getpass()  # getting hiden pass for security
     while not is_pass_Strong(password):
         print(('your password is not strong enough'))
@@ -139,12 +143,25 @@ def sign_up():
 
 
 def is_user_name_valid(user_name):
-    user_name = input('User Name: ')
-    client.emit('user_name_validity', user_name, callback=resp)
+    client.emit('user_name_validity', user_name)
     # print('''Sorry this user name has been given to another player \U0001F61E.
     # Try another one''')
 
 
+@client.on('is_user_name_valid_resp')
+def is_user_name_valid_resp(user_name_validity_answer):
+    global check_user_name
+    global is_check_user_name_done
+    if not user_name_validity_answer:
+        print('''Sorry \U0001F927. Your user name is invalid.''')
+        check_user_name = False
+        is_check_user_name_done = True
+    else:
+        check_user_name = True
+        is_check_user_name_done = True
+
+
+""" 
 def resp(response):  # user name sign-up response
     global check_user_name
     check_user_name = False
@@ -155,6 +172,8 @@ def resp(response):  # user name sign-up response
     another person's user name. So you must pick another thing! \U0001F937''')
         is_user_name_valid(user_name='a')
     check_user_name = response
+
+ """
 
 
 def is_pass_Strong(password):

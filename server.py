@@ -1,8 +1,8 @@
 from select import select
 from signal import pthread_sigmask
-from time import sleep
 from socketio import *
 from gevent import pywsgi
+from server_functions import *
 server = Server(async_mode='gevent')
 # name_list = []  # (name, age)
 # games = []  # [(name1, age1), (name2, age2)]
@@ -33,18 +33,8 @@ def add_user(sid, user_data):
 
 @server.on('user_name_validity')
 def user_name_validity(sid, user_name):  # for sign-up.
-    if len(user_name) <= 3:
-        return False
-
-    for char in user_name:  # space and sumbols must not be in user_name.
-        if char in ''' !@#$%^&*()-=+`~|}]{['"?/\.<:;,''':
-            print('user name must not include any symbols (except "_")')
-            return False
-
-    if user_name in database:
-        return False
-
-    return user_name
+    answer = is_uname_valid(user_name, database)
+    server.emit('is_user_name_valid_resp', answer)
 
 
 @server.on('add_user_to_leader_board')
@@ -55,13 +45,15 @@ def add_user_to_leader_board(sid, leader_board_info):
 
 @server.on('ckeck_login_info')
 def ckeck_login_info(sid, login_info):
-    login_check = False
+    return is_login_info_valid(login_info, database)
+
+    """ login_check = False
     for k_login in login_info:
         for k_database in database:
             if k_login == k_database:
                 if login_info[k_login]['password'] == database[k_database]['password']:
                     login_check = True
-    return login_check
+    return login_check """
 
 
 @server.on('give_leader_board')
