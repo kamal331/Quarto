@@ -1,3 +1,5 @@
+from client_functions import *
+import termcolor
 import time
 from argon2 import PasswordHasher, Type
 from socketio import *
@@ -13,17 +15,17 @@ client = Client()
 
 @client.event
 def connect():
-    print("connected")
+    termcolor.cprint('connected', 'magenta')
 
 
 @client.event
 def connect_error(data):
-    print('Connection failed')
+    termcolor.cprint('Connection failed', 'magenta')
 
 
 @client.event()
 def disconnect():
-    print("Disconnected")
+    termcolor.cprint('Disconnected', 'magenta')
 
 
 def start_game_resp(response):
@@ -55,62 +57,45 @@ is_check_user_name_done = False
 def sign_up():
     global check_user_name
     global is_check_user_name_done
-    print('''READ THIS:\n
-    Your data, your right\U0001F60A.\n
-    1) We value your privacy. We do NOT collect any kind of personal data
-    your e-mail is a kind of personal data. So your are not obliged to 
-    enter your e-mail address. If you enter your email address you can
-    recover your account if you forgot your password. So if you don't 
-    provide your e-mail address make sure you write your password and
-    store it in safe place.
-    Warning: if you lost your password and you didn't provide your e-mail
-    address, there is NO way to recover your account as we store your
-    password in hash type. \n
-    2) we don't store your password in plain text. I use "PBKDF2" hash 
-    algorithm which is recommended by "NIST" (National Institute of
-    Standards and Technology)   ---> NIST Special Publication SP800-63B-3\n
-    3) We do Not get any other data. because it's not our business. 
-    Your age, your name, your last name, etc... are all your business.\n
-    4) make sure to choose a strong password. It means your password must
-    include Capital letter (A-Z) + Small letter (a-z) + numbers(0-9) + 
-    symbols ( !@#$%^&*()-}{? ). And make sure that it has atleast 15 character
-    Example of a great password: DLy$Bds2}bS!7Mis^d1AdV7%pSBrQ@\n
-    5) Your user name must not include symbols (Except "_") and it must
-    be at least 4 character. If you are confident that you entered valid user name,
-    and you cannot sign-up, it's because your choosen user name is same as
-    another person's user name. So you must pick another thing!
-    ''')
-    #user_name = input('User Name: ')
+    sign_up_message()
+    # user_name = input('User Name: ')
     while not check_user_name:
         is_check_user_name_done = False
-        user_name = input('User name: ')
+        user_name = input(termcolor.colored('User name: ', 'cyan'))
         s = is_user_name_valid(user_name)
         while not is_check_user_name_done:  # avoid race condition
             pass
 
-    password = getpass()  # getting hiden pass for security
+    password = getpass(termcolor.colored(
+        'Password: ', 'cyan'))  # getting hiden pass for security
     while not is_pass_Strong(password):
-        print(('your password is not strong enough'))
-        password = getpass()
+        termcolor.cprint('your password is not strong enough', 'yellow')
+        password = getpass(termcolor.colored(
+            'enter your password again: ', 'cyan'))
 
-    print('enter your password again')
-    confirm_password = getpass()
+    termcolor.cprint(
+        'Nice! Confirm your password (enter it again): ', 'yellow')
+    confirm_password = getpass(termcolor.colored(
+        'enter your password again: ', 'cyan'))
 
     while not confirm_pass(password, confirm_password):
         print('Sorry \U0001F613. second password you entered, doesn\'t match with first password')
-        confirm_password = input('enter your password again: ')
+        confirm_password = getpass(termcolor.colored(
+            'enter your password again: ', 'cyan'))
 
+    NOT_ = termcolor.colored('NOT', 'yellow', attrs=['bold'])
+    E_mail_ = termcolor.colored('E-mail', 'cyan')
     email = input(
-        '''E-mail: (optional. You are NOT forced to enter your e-mail address.
+        f'''{E_mail_}: (optional. You are {NOT_} forced to enter your e-mail address.
         It is your privacy. Respect your privacy. Don't give your personal info
         to anyone.(includes us \U0001F9F1))
         if you Don,t want, just enter "0": ''')
     while not email_validity(email):
         print('your e-mail is not valid. eneter another one.')
-        email = input('E-mail: ')
+        email = input(termcolor.colored('E-mail: ', 'cyan'))
 
-    confirm = input(
-        'Do you want to sign-up? write "yes". If you don\'t, write any other thing to back to the menu: ').lower()
+    confirm = input(termcolor.colored(
+        'Do you want to sign-up? write "yes". If you don\'t, write any other thing to back to the menu: ', 'cyan')).lower()
     if confirm == 'yes':
         wins = 0
         losses = 0
@@ -148,12 +133,13 @@ def is_user_name_valid(user_name):
     # Try another one''')
 
 
-@client.on('is_user_name_valid_resp')
+@ client.on('is_user_name_valid_resp')
 def is_user_name_valid_resp(user_name_validity_answer):
     global check_user_name
     global is_check_user_name_done
     if not user_name_validity_answer:
-        print('''Sorry \U0001F927. Your user name is invalid.''')
+        termcolor.colored(
+            '''Sorry \U0001F927. Your user name is invalid.''', 'yellow')
         check_user_name = False
         is_check_user_name_done = True
     else:
@@ -161,7 +147,7 @@ def is_user_name_valid_resp(user_name_validity_answer):
         is_check_user_name_done = True
 
 
-""" 
+"""
 def resp(response):  # user name sign-up response
     global check_user_name
     check_user_name = False
@@ -176,55 +162,10 @@ def resp(response):  # user name sign-up response
  """
 
 
-def is_pass_Strong(password):
-    up = 0
-    low = 0
-    num = 0
-    symb = 0
-    if len(password) < 15:  # password lenght must be 15 or more character
-        return False
-
-    for char in password:
-        if char.isupper():
-            up += 1
-
-        elif char.islower():
-            low += 1
-
-        elif char.isnumeric():
-            num += 1
-
-        else:
-            symb += 1
-
-    if up >= 3 and low >= 3 and symb >= 3 and num >= 3:
-        return True
-
-    return False
-
-
-def pbkdf2_hash(password):
-    salt = binascii.unhexlify('aaef2d3f4d77ac66e9c5a6c3d8f921d1')
-    passwd = f"{password}".encode("utf8")
-    key = pbkdf2_hmac("sha256", passwd, salt, 50000, 32)
-    return binascii.hexlify(key)
-
-
-def email_validity(email):
-    for char in email:
-        if char in ''' !#$%^&*()-=+`~|}]{['"?/\<:;,''':
-            return False
-
-    if ('@' in email and '.' in email) or (email == '0'):
-        return True
-
-    return False
-
-
 def login():
-    print('''Welcome to login page \U0001F603 ''')
-    user_name = input('User Name: ')
-    password = getpass()
+    termcolor.cprint('''Welcome to login page \U0001F603 ''', 'cyan')
+    user_name = input(termcolor.colored('User Name: ', 'cyan'))
+    password = getpass(termcolor.colored('Password: ', 'cyan'))
     password = pbkdf2_hash(password)
     password = {'password': password}  # creating dict
     login_info = {}
@@ -233,18 +174,18 @@ def login():
                 callback=check_login_resp)
 
     # password = argon2_hash(password)  # hashing it
-    #login_info = {}
-    #value = {'password': password}
-    #login_info[user_name] = value
+    # login_info = {}
+    # value = {'password': password}
+    # login_info[user_name] = value
     # client.emit('ckeck_login_info', login_info,
     #            user_name, callback=login_resp)
 
 
-@client.on('check_login_resp')
+@ client.on('check_login_resp')
 def check_login_resp(response):
     if response:
         return True
-    print('Incorrect login info! Try again.')
+    termcolor.cprint('Incorrect login info! Try again.', 'yellow')
     login()
 
 
@@ -252,18 +193,23 @@ def request_leader_board():
     client.emit('give_leader_board')
 
 
-@client.on('get_leader_board')
+@ client.on('get_leader_board')
 def get_leader_board(leader_board):
     print(leader_board)
 
 
-def start():
-    operation = input(''' Hi \U0001F64B
-    What do you want to do?
-    1) Login (enter 1)
-    2) Leader board (enter 2)
-    3) sign-up (enter 3)
-    ''')  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
+def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
+    Login_ = termcolor.colored('2) Leader board (enter 2)', 'magenta')
+    Sign_up_ = termcolor.colored('3) sign-up (enter 3)', 'yellow')
+    Help_page_ = termcolor.colored(
+        '4) See "what is game about?" (enter 4)', 'green')
+    operation = input(termcolor.colored(f'''Hi \U0001F64B
+        What do you want to do?
+        1) Login (enter 1)
+        {Login_}
+        {Sign_up_}
+        {Help_page_}
+        ''', 'cyan', attrs=['bold']))
 
     if operation == '1':
         login()
@@ -274,8 +220,13 @@ def start():
     elif operation == '3':
         user_data = sign_up()
 
+    elif operation == '4':
+        game_help_page()
+        start()
+
     else:
-        print('Sorry. you wrote something that is invalid. please enter "1" or "2" or "3"')
+        termcolor.cprint(
+            'Sorry. you wrote something that is invalid. please enter "1" or "2" or "3" or "4"', 'yellow')
         start()
 
 
@@ -288,16 +239,16 @@ first_time = True
 
 # loggin_info = {'user_name': user_name, 'age': age}
 
-#client.emit('welcome', data=loggin_info, callback=resp)
+# client.emit('welcome', data=loggin_info, callback=resp)
 
 # name = input('enter name: ')
-#result = {'user1': user_name, 'user2': name}
+# result = {'user1': user_name, 'user2': name}
 
 
-#client.emit('start_game', mdata=loggin_info, callback=resp)
+# client.emit('start_game', mdata=loggin_info, callback=resp)
 """
 user_name = input('User Name: ')
-    
+
     while not is_user_name_valid(user_name):
         user_name = input('User Name: ')
 """
