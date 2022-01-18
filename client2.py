@@ -1,13 +1,8 @@
 from client_functions import *
 import termcolor
-import time
-from argon2 import PasswordHasher, Type
 from socketio import *
 from getpass import getpass
-
 import os
-import binascii
-from backports.pbkdf2 import pbkdf2_hmac
 
 
 client = Client()
@@ -34,20 +29,6 @@ def start_game_resp(response):
 
 def confirm_pass(password, confirm_password):
     return password == confirm_password
-
-
-def argon2_hash(password):
-    ph = PasswordHasher(
-        memory_cost=65000,  # 256000
-        time_cost=4,  # 400
-        parallelism=2,
-        hash_len=32,
-        type=Type.ID
-    )
-
-    passwordHash = ph.hash(password)
-
-    return passwordHash
 
 
 check_user_name = False
@@ -147,21 +128,6 @@ def is_user_name_valid_resp(user_name_validity_answer):
         is_check_user_name_done = True
 
 
-"""
-def resp(response):  # user name sign-up response
-    global check_user_name
-    check_user_name = False
-    if not response:
-        print('''Your user name must not include symbols (Except "_") and it must
-    be at least 4 character. If you are confident that you entered valid user name,
-    and you cannot sign-up, it's because your choosen user name is same as
-    another person's user name. So you must pick another thing! \U0001F937''')
-        is_user_name_valid(user_name='a')
-    check_user_name = response
-
- """
-
-
 def login():
     termcolor.cprint('''Welcome to login page \U0001F603 ''', 'cyan')
     user_name = input(termcolor.colored('User Name: ', 'cyan'))
@@ -172,13 +138,6 @@ def login():
     login_info[user_name] = password
     client.emit('ckeck_login_info', login_info,
                 callback=check_login_resp)
-
-    # password = argon2_hash(password)  # hashing it
-    # login_info = {}
-    # value = {'password': password}
-    # login_info[user_name] = value
-    # client.emit('ckeck_login_info', login_info,
-    #            user_name, callback=login_resp)
 
 
 @ client.on('check_login_resp')
@@ -196,6 +155,11 @@ def request_leader_board():
 @ client.on('get_leader_board')
 def get_leader_board(leader_board):
     print(leader_board)
+
+    back_to_menu = input(termcolor.colored(
+        'Enter any key to back to menu: ', 'yellow'))
+
+    start()
 
 
 def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone

@@ -1,0 +1,7 @@
+{'james_123': {
+    'password': "b'80d245bd55dd65ab9ac81ec3233a8d394335b5d191e2ed0d1c8d29952b3fcfa7'",
+    'email': 0,
+    'wins': 0,
+    'losses': 0
+}
+}

@@ -3,6 +3,7 @@ from signal import pthread_sigmask
 from socketio import *
 from gevent import pywsgi
 from server_functions import *
+import ast
 server = Server(async_mode='gevent')
 # name_list = []  # (name, age)
 # games = []  # [(name1, age1), (name2, age2)]
@@ -12,39 +13,57 @@ server = Server(async_mode='gevent')
     Licence info
 """
 
-database = {'james_123': {
-    'password': "b'80d245bd55dd65ab9ac81ec3233a8d394335b5d191e2ed0d1c8d29952b3fcfa7'",
-    'email': 0,
-    'wins': 0,
-    'losses': 0
-}
-}
-
-leader_board = {}
-
 
 @server.on('add_user')
 def add_user(sid, user_data):
+
+    with open('database_file.txt', 'r') as f_read_database:
+        database = f_read_database.read()
+    database = ast.literal_eval(database)
+
     # while it wasn't exis: ask the user enter another user name
     # albate in bayad toye client darkhast ersal she hengam neveshtan user_name
     database.update(user_data)
-    print(database)  # delete after end
+
+    with open('database_file.txt', 'w') as f_write_database:  # update database file
+        f_write_database.write(str(database))
+
+    print(database)  # delete after end **********
 
 
 @server.on('user_name_validity')
 def user_name_validity(sid, user_name):  # for sign-up.
+
+    with open('database_file.txt', 'r') as f_read_database:
+        database = f_read_database.read()
+    database = ast.literal_eval(database)
+
     answer = is_uname_valid(user_name, database)
     server.emit('is_user_name_valid_resp', answer)
 
 
 @server.on('add_user_to_leader_board')
 def add_user_to_leader_board(sid, leader_board_info):
+
+    with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+        leader_board = f_read_leaderboard.read()
+    leader_board = ast.literal_eval(leader_board)
+
     leader_board.update(leader_board_info)
+
+    with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+        f_write_leaderboard.write(str(leader_board))
+
     print(leader_board)
 
 
 @server.on('ckeck_login_info')
 def ckeck_login_info(sid, login_info):
+
+    with open('database_file.txt') as f_read_database:
+        database = f_read_database.read()
+    database = ast.literal_eval(database)
+
     return is_login_info_valid(login_info, database)
 
     """ login_check = False
@@ -58,6 +77,11 @@ def ckeck_login_info(sid, login_info):
 
 @server.on('give_leader_board')
 def give_leader_board(sid):
+
+    with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+        leader_board = f_read_leaderboard.read()
+    leader_board = ast.literal_eval(leader_board)
+
     server.emit('get_leader_board', leader_board)
 # @server.on('send_pass_hash')
 # def send_pass_hash(sid, user_name):  # room=player[0]
