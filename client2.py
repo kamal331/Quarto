@@ -147,6 +147,7 @@ def login():
 @ client.on('check_login_resp')
 def check_login_resp(response):
     if response:
+        start_new_game()
         return True
     termcolor.cprint('Incorrect login info! Try again.',
                      'yellow', attrs=['bold'])
@@ -211,6 +212,52 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
             'Sorry. you wrote something that is invalid. please enter "1" or "2" or "3" or "4" or "5"', 'yellow', attrs=['bold'])
         start()
 
+
+# ------------------------------------------------------
+def start_new_game():
+    client.emit('give_ready_players', '1')
+
+
+@client.on('can_i_join')
+def can_i_join(can_i):
+    if can_i == False:
+        termcolor.cprint(
+            'Oh, server is busy. please try again later ', 'yellow', attrs=['bold'])
+        start()
+
+    else:
+        termcolor.cprint('Good! Wait for second player! ',
+                         'green', attrs=['bold'])
+
+
+@client.on('choose_piece')
+def choose_piece(pieces):
+    choosed_piece = input(termcolor.colored(
+        f'pick a piece from {pieces}: ', 'cyan', attrs=['bold']))
+    client.emit('get_choosen_piece', choosed_piece)
+
+
+@client.on('choose_move')
+def choose_move(choosed_piece_to_move):  # agar bishtar az 16 dad
+    move = input(termcolor.colored(
+        f'move {choosed_piece_to_move} to which square?: ', 'cyan', attrs=['bold']))
+    numbers_can_choose = ['1', '2', '3', '4', '5', '6', '7',
+                          '8', '9', '10', '11', '12', '13', '14', '15', '16']
+
+    while move not in numbers_can_choose:
+        termcolor.cprint('Invalid input.', 'yellow', attrs=['bold'])
+        move = input(termcolor.colored(
+            f'move {choosed_piece_to_move} to which square?: ', 'cyan', attrs=['bold']))
+
+    client.emit('get_choosen_move', int(move))
+
+
+@client.on('get_board')
+def get_board(board):
+    print(board)
+
+
+# -----------------------------------
 
 client.connect("http://127.0.0.1:5000")
 first_time = False
