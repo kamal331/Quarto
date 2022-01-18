@@ -39,7 +39,7 @@ def user_name_validity(sid, user_name):  # for sign-up.
     database = ast.literal_eval(database)
 
     answer = is_uname_valid(user_name, database)
-    server.emit('is_user_name_valid_resp', answer)
+    server.emit('is_user_name_valid_resp', answer, room=sid)
 
 
 @server.on('add_user_to_leader_board')
@@ -64,6 +64,7 @@ def ckeck_login_info(sid, login_info):
         database = f_read_database.read()
     database = ast.literal_eval(database)
 
+    # chon room=sid nadare, be hame client ha ersal mikoneh? ya chon resp dare intor nist?
     return is_login_info_valid(login_info, database)
 
     """ login_check = False
@@ -82,23 +83,10 @@ def give_leader_board(sid):
         leader_board = f_read_leaderboard.read()
     leader_board = ast.literal_eval(leader_board)
 
-    server.emit('get_leader_board', leader_board)
+    server.emit('get_leader_board', leader_board, room=sid)
 # @server.on('send_pass_hash')
 # def send_pass_hash(sid, user_name):  # room=player[0]
 #    server.emit('get_pass_hash_resp', database[user_name]['password'])
-
-
-"""def _is_user_name_exist(user_name):
-    for item in name_list:
-        if name_list[0] == user_name:
-            return True
-    return False
-
-
-def _get_age(user_name):
-    for item in name_list:
-        if name_list[0] == user_name:
-            return name_list[1]"""
 
 
 @server.event  # ye baksh ke migim client mitone behet etelaat bede

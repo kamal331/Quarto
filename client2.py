@@ -10,17 +10,17 @@ client = Client()
 
 @client.event
 def connect():
-    termcolor.cprint('connected', 'magenta')
+    termcolor.cprint('connected', 'magenta', attrs=['bold'])
 
 
 @client.event
 def connect_error(data):
-    termcolor.cprint('Connection failed', 'magenta')
+    termcolor.cprint('Connection failed', 'magenta', attrs=['bold'])
 
 
 @client.event()
 def disconnect():
-    termcolor.cprint('Disconnected', 'magenta')
+    termcolor.cprint('Disconnected', 'magenta', attrs=['bold'])
 
 
 def start_game_resp(response):
@@ -42,7 +42,8 @@ def sign_up():
     # user_name = input('User Name: ')
     while not check_user_name:
         is_check_user_name_done = False
-        user_name = input(termcolor.colored('User name: ', 'cyan'))
+        user_name = input(termcolor.colored(
+            'User name: ', 'cyan', attrs=['bold']))
         s = is_user_name_valid(user_name)
         while not is_check_user_name_done:  # avoid race condition
             pass
@@ -50,33 +51,35 @@ def sign_up():
     password = getpass(termcolor.colored(
         'Password: ', 'cyan'))  # getting hiden pass for security
     while not is_pass_Strong(password):
-        termcolor.cprint('your password is not strong enough', 'yellow')
+        termcolor.cprint('your password is not strong enough',
+                         'yellow', attrs=['bold'])
         password = getpass(termcolor.colored(
-            'enter your password again: ', 'cyan'))
+            'enter your password again: ', 'cyan', attrs=['bold']))
 
     termcolor.cprint(
-        'Nice! Confirm your password (enter it again): ', 'yellow')
+        'Nice! Confirm your password (enter it again): ', 'yellow', attrs=['bold'])
     confirm_password = getpass(termcolor.colored(
-        'enter your password again: ', 'cyan'))
+        'enter your password again: ', 'cyan', attrs=['bold']))
 
     while not confirm_pass(password, confirm_password):
         print('Sorry \U0001F613. second password you entered, doesn\'t match with first password')
         confirm_password = getpass(termcolor.colored(
-            'enter your password again: ', 'cyan'))
+            'enter your password again: ', 'cyan', attrs=['bold']))
 
     NOT_ = termcolor.colored('NOT', 'yellow', attrs=['bold'])
-    E_mail_ = termcolor.colored('E-mail', 'cyan')
+    E_mail_ = termcolor.colored('E-mail', 'cyan', attrs=['bold'])
     email = input(
         f'''{E_mail_}: (optional. You are {NOT_} forced to enter your e-mail address.
         It is your privacy. Respect your privacy. Don't give your personal info
         to anyone.(includes us \U0001F9F1))
         if you Don,t want, just enter "0": ''')
     while not email_validity(email):
-        print('your e-mail is not valid. eneter another one.')
-        email = input(termcolor.colored('E-mail: ', 'cyan'))
+        termcolor.cprint(
+            'your e-mail is not valid. eneter another one.', 'yellow', attrs=['bold'])
+        email = input(termcolor.colored('E-mail: ', 'cyan', attrs=['bold']))
 
     confirm = input(termcolor.colored(
-        'Do you want to sign-up? write "yes". If you don\'t, write any other thing to back to the menu: ', 'cyan')).lower()
+        'Do you want to sign-up? write "yes". If you don\'t, write any other thing to back to the menu: ', 'cyan', attrs=['bold'])).lower()
     if confirm == 'yes':
         wins = 0
         losses = 0
@@ -114,13 +117,13 @@ def is_user_name_valid(user_name):
     # Try another one''')
 
 
-@ client.on('is_user_name_valid_resp')
+@client.on('is_user_name_valid_resp')
 def is_user_name_valid_resp(user_name_validity_answer):
     global check_user_name
     global is_check_user_name_done
     if not user_name_validity_answer:
         termcolor.colored(
-            '''Sorry \U0001F927. Your user name is invalid.''', 'yellow')
+            '''Sorry \U0001F927. Your user name is invalid.''', 'yellow', attrs=['bold'])
         check_user_name = False
         is_check_user_name_done = True
     else:
@@ -129,9 +132,10 @@ def is_user_name_valid_resp(user_name_validity_answer):
 
 
 def login():
-    termcolor.cprint('''Welcome to login page \U0001F603 ''', 'cyan')
-    user_name = input(termcolor.colored('User Name: ', 'cyan'))
-    password = getpass(termcolor.colored('Password: ', 'cyan'))
+    termcolor.cprint('''Welcome to login page \U0001F603 ''',
+                     'cyan', attrs=['bold'])
+    user_name = input(termcolor.colored('User Name: ', 'cyan', attrs=['bold']))
+    password = getpass(termcolor.colored('Password: ', 'cyan', attrs=['bold']))
     password = pbkdf2_hash(password)
     password = {'password': password}  # creating dict
     login_info = {}
@@ -144,7 +148,8 @@ def login():
 def check_login_resp(response):
     if response:
         return True
-    termcolor.cprint('Incorrect login info! Try again.', 'yellow')
+    termcolor.cprint('Incorrect login info! Try again.',
+                     'yellow', attrs=['bold'])
     login()
 
 
@@ -157,22 +162,29 @@ def get_leader_board(leader_board):
     print(leader_board)
 
     back_to_menu = input(termcolor.colored(
-        'Enter any key to back to menu: ', 'yellow'))
+        'Enter any key to back to menu: ', 'yellow', attrs=['bold']))
 
     start()
 
 
 def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
-    Login_ = termcolor.colored('2) Leader board (enter 2)', 'magenta')
-    Sign_up_ = termcolor.colored('3) sign-up (enter 3)', 'yellow')
+    Login_ = termcolor.colored('2) Leader board (enter 2)',
+                               'magenta', attrs=['bold'])
+    Sign_up_ = termcolor.colored(
+        '3) sign-up (enter 3)', 'yellow', attrs=['bold'])
     Help_page_ = termcolor.colored(
-        '4) See "what is game about?" (enter 4)', 'green')
+        '4) See "what is game about?" (enter 4)', 'green', attrs=['bold'])
+
+    About_me_ = termcolor.colored(
+        '5) About me (game creator)', 'blue', attrs=['bold'])
+
     operation = input(termcolor.colored(f'''Hi \U0001F64B
         What do you want to do?
         1) Login (enter 1)
         {Login_}
         {Sign_up_}
         {Help_page_}
+        {About_me_}
         ''', 'cyan', attrs=['bold']))
 
     if operation == '1':
@@ -188,9 +200,15 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         game_help_page()
         start()
 
+    elif operation == '5':
+        about_game_creator()
+        back_to_menu = input(termcolor.colored(
+            'Enter any key to back to meny: ', 'cyan', attrs=['bold']))
+        start()
+
     else:
         termcolor.cprint(
-            'Sorry. you wrote something that is invalid. please enter "1" or "2" or "3" or "4"', 'yellow')
+            'Sorry. you wrote something that is invalid. please enter "1" or "2" or "3" or "4" or "5"', 'yellow', attrs=['bold'])
         start()
 
 
