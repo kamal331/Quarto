@@ -1,5 +1,3 @@
-from select import select
-from signal import pthread_sigmask
 from socketio import *
 from gevent import pywsgi
 from server_functions import *

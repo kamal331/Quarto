@@ -17,6 +17,7 @@ def sign_up_message():
     Pbkdf2_ = termcolor.colored('"PBKDF2"', 'cyan', attrs=['bold'])
     Nist_ = termcolor.colored('"NIST"', 'cyan', attrs=['bold'])
     Plus_sign_ = termcolor.colored('+', 'yellow', attrs=['bold'])
+    Symbols_ = termcolor.colored('!@#$%^&*()-}{?', 'cyan', attrs=['bold'])
     termcolor.cprint('READ THIS:', 'red', 'on_white')
     print()
     termcolor.cprint('Your data, your rights\U0001F60A.',
@@ -38,7 +39,7 @@ def sign_up_message():
     Your age, your name, your last name, etc... are all your business.\n
 {Number_4_} make sure to choose a strong password. It means your password must
     include Capital letter (A-Z) {Plus_sign_} Small letter (a-z) {Plus_sign_} numbers(0-9) {Plus_sign_}
-    symbols ( !@#$%^&*()-}}{{? ). And make sure that it has atleast 15 character
+    symbols ( {Symbols_} ). And make sure that it has atleast 15 character
     Example of a great password: {Greate_pass_}\n
 {Number_5_} Your user name must not include symbols (Except "_") and it must
     be at least 4 character. If you are confident that you entered valid user name,
@@ -65,9 +66,45 @@ def game_help_page():
     Players take turns choosing a piece which the other player must then place on the board. 
     A player wins by placing a piece on the board which forms a horizontal, vertical, or diagonal row of
     four pieces, all of which have a common attribute (all short, all circular, etc.).''', 'cyan')
-
+    termcolor.cprint('''I use Blue and Yellow collor. here are pieces. Also you can see those at real-time
+    you're playing. NOTE: board squares is numbered from top left.
+    ''', 'yellow', attrs=['bold'])
+    Big_blue_hallowtop_square_ = termcolor.colored('□', 'blue')
+    Big_yellow_hallowtop_square_ = termcolor.colored('□', 'yellow')
+    Small_blue_hallowtop_square_ = termcolor.colored('⋄', 'blue')
+    Small_yellow_hallowtop_square_ = termcolor.colored('⋄', 'yellow')
+    Little_yellow_solid_square_ = termcolor.colored('▪', 'yellow')
+    Little_blue_solid_square_ = termcolor.colored('▪', 'blue')
+    Small_blue_little_circle_ = termcolor.colored('•', 'blue')
+    Small_yellow_little_circle_ = termcolor.colored('•', 'yellow')
+    Big_blue_hallowtop_circle_ = termcolor.colored('⦿', 'blue')
+    Big_yellow_hallowtop_circle_ = termcolor.colored('⦿', 'yellow')
+    Small_blue_hallowtop_circle_ = termcolor.colored('⚬', 'blue')
+    Small_yellow_hallowtop_circle_ = termcolor.colored('⚬', 'yellow')
+    Left_parantesis_ = termcolor.colored('(', 'cyan', attrs=['bold'])
+    Right_parantesis_ = termcolor.colored(')', 'cyan', attrs=['bold'])
+    # DONT !!!! Forget to do .lower()
+    pointer_sign = termcolor.colored('--->', 'magenta')
+    termcolor.cprint(f'''
+    \U0001F7E6  {pointer_sign} Big Blue Solid-top Square {Left_parantesis_}bbss{Right_parantesis_}
+    \U0001F7E8  {pointer_sign} Big Yellow Solid-top Sqaure {Left_parantesis_}byss{Right_parantesis_}
+    {Little_blue_solid_square_}   {pointer_sign} small Blue Solid-top Square {Left_parantesis_}sbss{Right_parantesis_}
+    {Little_yellow_solid_square_ }   {pointer_sign} Small Yellow Solid-top Sqaure {Left_parantesis_}syss{Right_parantesis_}
+    {Big_blue_hallowtop_square_}   {pointer_sign} Big Blue Hallow-top square {Left_parantesis_}bbhs{Right_parantesis_}
+    {Big_yellow_hallowtop_square_}   {pointer_sign} Big Yellow Hallow-top Square {Left_parantesis_}byhs{Right_parantesis_}
+    {Small_blue_hallowtop_square_}   {pointer_sign} Small Blue Hallow-top square {Left_parantesis_}sbhs{Right_parantesis_}
+    {Small_yellow_hallowtop_square_}   {pointer_sign} Small Yellow Hallow-top square {Left_parantesis_}syhs{Right_parantesis_}
+    \U0001F535  {pointer_sign} Big Blue Solid-top Circle {Left_parantesis_}bbsc{Right_parantesis_}
+    \U0001F7E1  {pointer_sign} Big Yellow Solid-top Circle {Left_parantesis_}bysc{Right_parantesis_}
+    {Small_blue_little_circle_}   {pointer_sign} Small Blue Solid-top Circle {Left_parantesis_}sbsc{Right_parantesis_}
+    {Small_yellow_little_circle_}   {pointer_sign} Small Yellow Solid-top Circle {Left_parantesis_}sysc{Right_parantesis_}
+    {Big_blue_hallowtop_circle_}   {pointer_sign} Big Blue Hallowtop Circle {Left_parantesis_}bbhc{Right_parantesis_}
+    {Big_yellow_hallowtop_circle_}   {pointer_sign} Big Yellow Hallowtop Circle {Left_parantesis_}byhc{Right_parantesis_}
+    {Small_blue_hallowtop_circle_}   {pointer_sign} Small Blue Hallowtop Circle {Left_parantesis_}sbhc{Right_parantesis_}
+    {Small_yellow_hallowtop_circle_}   {pointer_sign} Small Yellow Hallowtop Circle {Left_parantesis_}syhc{Right_parantesis_}
+    ''', 'yellow')
     back_to_menu_from_help_page = input(
-        termcolor.colored('Enter any key to back to menu: '))
+        termcolor.colored('Enter any key to back to menu: ', 'cyan', attrs=['bold']))
 
 
 def is_pass_Strong(password):
@@ -116,13 +153,13 @@ def email_validity(email):
 
 
 def about_game_creator():
-    Read_these_ = termcolor.cprint('Read these:', 'red', 'on_white')
+    Read_these_ = termcolor.colored('Read these:', 'red', 'on_white')
     I_LOVE_YOU_ = termcolor.colored(
         '"I LOVE YOU"', 'yellow', attrs=['bold'])
     Say_ = termcolor.colored('say', 'cyan')
-    number5_ = termcolor.colored('''
+    Number5_text_ = termcolor.colored('''
         or any other verbal affections to those you love.
-        Life is really short. Nobody knows if is alive tomorrow or not.
+        Life is really short. Nobody knows if he/she is alive tomorrow or not.
         Love those you love, like this is the last day of your life.
     
     Buh-bye \U0001F33F \U0001F339''', 'cyan', attrs=['bold'])
@@ -136,8 +173,10 @@ def about_game_creator():
     2) Have fun! But don't waste your time in games. I know that you know your
         time is so important. Make a balance for your work and your fun. (OR you
         can choose a job that is fun for you and you love it. Some parents say
-        You must be ... in the future. But if you don't like that job, please don't
-        choose it.it's not a patient's right that you treat him with bad morals!!
+        You must be ... in the future. But if you don't like that job
+        and you probably will hate it, please don't choose it. let's think you want
+        to be a doctor and you don't like it. So it's not a patient's right that you
+        treat him with bad morals!!
         - No. I am a kind person. )
         + OK. But Every time you wake up, you're angry that you have to go to work.
         The work that you don't like it (Or you hate it.)
@@ -156,5 +195,5 @@ def about_game_creator():
 
     termcolor.cprint(
         f'''
-    5) {Say_} {I_LOVE_YOU_} {number5_}
+    5) {Say_} {I_LOVE_YOU_} {Number5_text_}
     ''', 'cyan', attrs=['bold'])
