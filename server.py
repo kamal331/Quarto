@@ -73,8 +73,8 @@ def ckeck_login_info(sid, login_info):
             sid_username_dic = f_read_sid.read()
         sid_username_dic = ast.literal_eval(sid_username_dic)
 
-        for k in login_info:
-            new_record = {k: sid}
+        for u in login_info:
+            new_record = {sid: u}  # {sid : user}
 
         sid_username_dic.update(new_record)
 
@@ -104,6 +104,44 @@ def give_leader_board(sid):
 # @server.on('send_pass_hash')
 # def send_pass_hash(sid, user_name):  # room=player[0]
 #    server.emit('get_pass_hash_resp', database[user_name]['password'])
+
+
+@server.on('get_rtbf_req')
+def get_rtbf_req(sid, account_info):
+
+    with open('database_file.txt') as f_read_database:
+        database = f_read_database.read()
+    database = ast.literal_eval(database)
+
+    check_l = is_login_info_valid(account_info, database)
+    if check_l:
+        # -------------------------delete from database-------------------------
+        with open('database_file.txt', 'r') as f_read_database:
+            database = f_read_database.read()
+        database = ast.literal_eval(database)
+
+        # while it wasn't exis: ask the user enter another user name
+        # albate in bayad toye client darkhast ersal she hengam neveshtan user_name
+        for u in account_info:
+            del database[u]
+
+        with open('database_file.txt', 'w') as f_write_database:  # update database file
+            f_write_database.write(str(database))
+        # -------------------------delete from leaderboard-----------------------
+        with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+            leader_board = f_read_leaderboard.read()
+        leader_board = ast.literal_eval(leader_board)
+
+        for u in account_info:
+            del leader_board[u]
+
+        with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+            f_write_leaderboard.write(str(leader_board))
+# --------------------------end deleting-----------------------------------
+        server.emit('get_rtbf_resp', True, room=sid)
+
+    else:
+        server.emit('get_rtbf_resp', False, room=sid)
 
 
 # ------------------------------------------------
@@ -146,6 +184,7 @@ def request_choosen_move(sid, choosed_piece):
     server.emit('choose_move', choosed_piece, room=sid)
 
 
+player_did_last_move = []
 dic = {}
 for i in range(1, 17):
     dic[i] = ('empty', '  ')
@@ -153,6 +192,7 @@ for i in range(1, 17):
 
 @server.on('get_choosen_move')
 def get_choosen_move(sid, move):
+    global player_did_last_move
     global piece_to_move
     global shape_to_move
     Big_blue_hallowtop_square_ = termcolor.colored('□', 'blue')
@@ -183,36 +223,39 @@ def get_choosen_move(sid, move):
         'sbsc': f'{Small_blue_little_circle_} ',
         'sysc': f'{Small_yellow_little_circle_} ',
         'bbhc': f'{Big_blue_hallowtop_circle_} ',
-        'byhc': f'{Big_yellow_hallowtop_circle_}',
+        'byhc': f'{Big_yellow_hallowtop_circle_} ',
         'sbhc': f'{Small_blue_hallowtop_circle_} ',
-        'syhc': f'{Small_yellow_hallowtop_circle_}'
+        'syhc': f'{Small_yellow_hallowtop_circle_} '
     }
+    player_did_last_move = [sid]
     piece_to_move.append(move)
     number = move
     shape = shape_to_move[0]
     count = 2
-    while(number < 17):
-        dic.update({number: (shape, shapes[shape])})
-        palce_table(dic)
-        # if count % 2 == 0:  # to seperate player1 and 2
-        #     server.emit('get_board', board, room=ready_players[1])
+    # while(number < 17):
+    dic.update({number: (shape, shapes[shape])})
+    table = palce_table(dic)
+
+    if count % 2 == 0:  # to seperate player1 and 2
+        server.emit('get_board', table)
 
         # else:
-        #     server.emit('get_board', board, room=ready_players[0])
+        #    server.emit('get_board', table, room=ready_players[0])
 
-        if win_condition(dic):
-            break
+    if not win_condition(dic):
 
         piece_to_move = []
         shape_to_move = []
+
+        player_did_last_move = []
 
         if count % 2 == 0:
             request_choosen_piece(ready_players[1])
         else:
             request_choosen_piece(ready_players[0])
 
-        number = piece_to_move[0]
-        shape = shape_to_move[0]
+        #number = piece_to_move[0]
+        #shape = shape_to_move[0]
 
         count += 1
 
@@ -221,11 +264,23 @@ def get_choosen_move(sid, move):
 
 
 def palce_table(dic):
+    board = ''
+    second_time = False
     for i in range(1, 17, 4):
-        print(f'''______ _____ _____ _____
+        if not second_time:
+            board += f'''______ _____ _____ _____
 |     |     |     |     |
 | {dic[i][1]}  | {dic[i+1][1]}  | {dic[i+2][1]}  | {dic[i+3][1]}  |
-|_____|_____|_____|_____|''')
+|_____|_____|_____|_____|'''
+
+        else:
+            board += f'''
+|     |     |     |     |
+| {dic[i][1]}  | {dic[i+1][1]}  | {dic[i+2][1]}  | {dic[i+3][1]}  |
+|_____|_____|_____|_____|'''
+
+        second_time = True
+    return board
 
 
 def win_condition(dic):  # gives all Columns and Rows and Diameters to check table
@@ -242,7 +297,14 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
         if flag1:
             game = check_table(column, game, dic)
             if game:
-                print("Win")
+
+                server.emit('i_won', 'Nice! You won!',
+                            room=player_did_last_move[0])
+                for i in ready_players:
+                    if i != player_did_last_move[0]:
+                        server.emit(
+                            'i_lost', 'OH! You lost the game...', room=i)
+
                 return game
 # ------------------------------ gives all Rows ------------------------------ #
     for i in range(1, 17, 4):
@@ -257,7 +319,14 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
             game = check_table(row, game, dic)
 
             if game:
-                print("Win")
+
+                server.emit('i_won', 'Nice! You won!',
+                            room=player_did_last_move[0])
+                for i in ready_players:
+                    if i != player_did_last_move[0]:
+                        server.emit(
+                            'i_lost', 'OH! You lost the game...', room=i)
+
                 return game
 # ---------------------------- gives two Diameters --------------------------- #
     d1 = [1, 6, 11, 16]
@@ -269,7 +338,13 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
     if flag1:
         game = check_table(d1, game, dic)
         if game:
-            print("Win")
+
+            server.emit('i_won', 'Nice! You won!',
+                        room=player_did_last_move[0])
+            for i in ready_players:
+                if i != player_did_last_move[0]:
+                    server.emit('i_lost', 'OH! You lost the game...', room=i)
+
             return game
 
     d2 = [4, 7, 10, 13]
@@ -281,7 +356,13 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
     if flag1:
         game = check_table(d2, game, dic)
         if game:
-            print("Win")
+
+            server.emit('i_won', 'Nice! You won!',
+                        room=player_did_last_move[0])
+            for i in ready_players:
+                if i != player_did_last_move[0]:
+                    server.emit('i_lost', 'OH! You lost the game...', room=i)
+
             return game
 
     return game
@@ -305,6 +386,7 @@ def check_table(foo, game, dic):
                     continue
                 else:
                     common[j] = 0
+
     for i in common:
         if i != 0:
             game = True
@@ -315,7 +397,6 @@ def check_table(foo, game, dic):
 def main_game():
     # global piece_to_move
     # global shape_to_move
-
     id_ = ready_players[0]
 
     request_choosen_piece(id_)

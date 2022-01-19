@@ -98,7 +98,9 @@ def sign_up():
             }
         }
         client.emit('add_user', user_data)
-        login()
+        termcolor.cprint('Account successfully created.',
+                         'green', attrs=['bold'])
+        start()
     # return user_data
     # user_data = {
     #    'user_name': user_name,
@@ -168,6 +170,17 @@ def get_leader_board(leader_board):
     start()
 
 
+@client.on('get_rtbf_resp')
+def get_rtbf_resp(rtbf_resp):
+    if rtbf_resp:
+        termcolor.cprint(
+            'Account successfully deleted! BYE \U0001F590', 'green', attrs=['bold'])
+    else:
+        termcolor.cprint('Invalid account info!', 'yellow', attrs=['bold'])
+
+    start()
+
+
 def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
     Login_ = termcolor.colored('2) Leader board (enter 2)',
                                'magenta', attrs=['bold'])
@@ -179,6 +192,9 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
     About_me_ = termcolor.colored(
         '5) About me (game creator)', 'blue', attrs=['bold'])
 
+    Delete_account_ = termcolor.colored(
+        '6) Delete account (Right To Be Forgotten)', 'green', attrs=['bold'])
+
     operation = input(termcolor.colored(f'''Hi \U0001F64B
         What do you want to do?
         1) Login (enter 1)
@@ -186,6 +202,7 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         {Sign_up_}
         {Help_page_}
         {About_me_}
+        {Delete_account_}
         ''', 'cyan', attrs=['bold']))
 
     if operation == '1':
@@ -207,9 +224,24 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
             'Enter any key to back to meny: ', 'cyan', attrs=['bold']))
         start()
 
+    elif operation == '6':
+        rtbf()
+
+        user_name = input(termcolor.colored(
+            'User Name: ', 'cyan', attrs=['bold']))
+        password = getpass(termcolor.colored(
+            'Password: ', 'cyan', attrs=['bold']))
+        password = pbkdf2_hash(password)
+        password = {'password': password}  # creating dict
+        account_info = {}
+        account_info[user_name] = password
+        print(account_info)
+        client.emit('get_rtbf_req', account_info)  # *******************88
+
     else:
         termcolor.cprint(
-            'Sorry. you wrote something that is invalid. please enter "1" or "2" or "3" or "4" or "5"', 'yellow', attrs=['bold'])
+            '''Sorry. you wrote something that is invalid.
+            please enter "1" or "2" or "3" or "4" or "5" or "6" ''', 'yellow', attrs=['bold'])
         start()
 
 
@@ -233,7 +265,14 @@ def can_i_join(can_i):
 @client.on('choose_piece')
 def choose_piece(pieces):
     choosed_piece = input(termcolor.colored(
-        f'pick a piece from {pieces}: ', 'cyan', attrs=['bold']))
+        f'pick a piece from {pieces}: \n', 'cyan', attrs=['bold']))
+
+    while choosed_piece not in pieces:  # avoid invalid input
+        termcolor.cprint(
+            'Sorry. you shoud choose between those I gave you!', 'yellow', attrs=['bold'])
+        choosed_piece = input(termcolor.colored(
+            f'pick a piece from {pieces}: \n', 'cyan', attrs=['bold']))
+
     client.emit('get_choosen_piece', choosed_piece)
 
 
@@ -254,11 +293,21 @@ def choose_move(choosed_piece_to_move):  # agar bishtar az 16 dad
 
 @client.on('get_board')
 def get_board(board):
+    print()
     print(board)
 
 
-# -----------------------------------
+@client.on('i_won')
+def i_won(won_text):
+    termcolor.cprint(won_text, 'green', attrs=['bold'])
 
+
+@client.on('i_lost')
+def i_lost(lost_text):
+    termcolor.cprint(lost_text, 'yellow', attrs=['bold'])
+
+
+# -----------------------------------
 client.connect("http://127.0.0.1:5000")
 first_time = False
 start()

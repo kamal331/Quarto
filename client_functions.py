@@ -197,3 +197,24 @@ def about_game_creator():
         f'''
     5) {Say_} {I_LOVE_YOU_} {Number5_text_}
     ''', 'cyan', attrs=['bold'])
+
+
+def rtbf():
+
+    wikipedia_website_for_rtbf = termcolor.colored(
+        'https://en.wikipedia.org/wiki/Right_to_be_forgotten', 'yellow')
+    termcolor.cprint(
+        f'This text is from wikipedia ---> {wikipedia_website_for_rtbf}', 'magenta')
+
+    termcolor.cprint('''
+    The right to be forgotten (RTBF[1]) is the right to have private information
+    about a person be removed from Internet searches and other directories under
+    some circumstances. The concept has been discussed and put into practice in
+    several jurisdictions, including Argentina,[2][3] European Union (EU), 
+    and the Philippines.
+    ''', 'cyan')
+
+    termcolor.cprint('''
+    We respect your privacy. So you can simply delete your account.
+    You must enter your User name, Password.
+    ''')
