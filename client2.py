@@ -103,13 +103,7 @@ def sign_up():
         termcolor.cprint('Account successfully created.',
                          'green', attrs=['bold'])
         start()
-    # return user_data
-    # user_data = {
-    #    'user_name': user_name,
-    #    'password': password,
-    #    'email': email
-    # }
-    # return user_data
+
     else:
         # do pass to menu. ye tabeh tarif kon baraye back to manu
         start()
@@ -117,8 +111,6 @@ def sign_up():
 
 def is_user_name_valid(user_name):
     client.emit('user_name_validity', user_name)
-    # print('''Sorry this user name has been given to another player \U0001F61E.
-    # Try another one''')
 
 
 @client.on('is_user_name_valid_resp')
@@ -194,13 +186,13 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         '4) See "what is game about?" (enter 4)', 'green', attrs=['bold'])
 
     About_me_ = termcolor.colored(
-        '5) About me (game creator)', 'blue', attrs=['bold'])
+        '5) About me (game creator) (enter 5)', 'blue', attrs=['bold'])
 
     Delete_account_ = termcolor.colored(
-        '6) Delete account (Right To Be Forgotten)', 'green', attrs=['bold'])
+        '6) Delete account (Right To Be Forgotten) (enter 6)', 'green', attrs=['bold'])
 
     Privacy_policy_ = termcolor.colored(
-        '7) Privacy Policy', 'yellow', attrs=['bold'])
+        '7) Privacy Policy (enter 7)', 'yellow', attrs=['bold'])
 
     operation = input(termcolor.colored(f'''Hi \U0001F64B
         What do you want to do?
@@ -243,7 +235,7 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         password = {'password': password}  # creating dict
         account_info = {}
         account_info[user_name] = password
-        client.emit('get_rtbf_req', account_info)  # *******************88
+        client.emit('get_rtbf_req', account_info)
 
     elif operation == '7':
         privacy_policy_text()
@@ -336,21 +328,3 @@ client.connect("http://127.0.0.1:5000")
 first_time = False
 start()
 first_time = True
-
-# client.emit('add_user', user_data)
-
-# loggin_info = {'user_name': user_name, 'age': age}
-
-# client.emit('welcome', data=loggin_info, callback=resp)
-
-# name = input('enter name: ')
-# result = {'user1': user_name, 'user2': name}
-
-
-# client.emit('start_game', mdata=loggin_info, callback=resp)
-"""
-user_name = input('User Name: ')
-
-    while not is_user_name_valid(user_name):
-        user_name = input('User Name: ')
-"""

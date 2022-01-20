@@ -68,19 +68,9 @@ def ckeck_login_info(sid, login_info):
     database = ast.literal_eval(database)
 
     check_l = is_login_info_valid(login_info, database)
+
     if check_l:
-
-        with open('sid_username_file.txt', 'r') as f_read_sid:
-            sid_username_dic = f_read_sid.read()
-        sid_username_dic = ast.literal_eval(sid_username_dic)
-
-        for u in login_info:
-            new_record = {sid: u}  # {sid : user}
-
-        sid_username_dic.update(new_record)
-
-        with open('sid_username_file.txt', 'w') as f_write_sid:
-            f_write_sid.write(str(sid_username_dic))
+        add_new_sid_to_username_record(sid, login_info)
 
     # chon room=sid nadare, be hame client ha ersal mikoneh? ya chon resp dare intor nist?
     return check_l
@@ -116,29 +106,8 @@ def get_rtbf_req(sid, account_info):
 
     check_l = is_login_info_valid(account_info, database)
     if check_l:
-        # -------------------------delete from database-------------------------
-        with open('database_file.txt', 'r') as f_read_database:
-            database = f_read_database.read()
-        database = ast.literal_eval(database)
+        delete_user_data(sid, account_info)
 
-        # while it wasn't exis: ask the user enter another user name
-        # albate in bayad toye client darkhast ersal she hengam neveshtan user_name
-        for u in account_info:
-            del database[u]
-
-        with open('database_file.txt', 'w') as f_write_database:  # update database file
-            f_write_database.write(str(database))
-        # -------------------------delete from leaderboard-----------------------
-        with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
-            leader_board = f_read_leaderboard.read()
-        leader_board = ast.literal_eval(leader_board)
-
-        for u in account_info:
-            del leader_board[u]
-
-        with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
-            f_write_leaderboard.write(str(leader_board))
-# --------------------------end deleting-----------------------------------
         server.emit('get_rtbf_resp', True, room=sid)
 
     else:
@@ -243,7 +212,7 @@ def get_choosen_move(sid, move):
     movenumbers_can_choose.remove(str(number))
     # while(number < 17):
     dic.update({number: (shape, shapes[shape])})
-    table = palce_table(dic)
+    table = place_table(dic)
 
     # if count % 2 == 0:  # to seperate player1 and 2
     server.emit('get_board', table)
@@ -268,8 +237,8 @@ def get_choosen_move(sid, move):
             # ------------- start updating leaderboard for the second player ------------------------
             for i in ready_players:
                 if i != player_did_last_move[0]:
-                    leader_board.update({sid_username_dic[player_did_last_move[i]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
-                                                                                     ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses'], 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']+1}})
+                    leader_board.update({sid_username_dic[i]: {'wins': leader_board[sid_username_dic[i]]
+                                                               ['wins'], 'losses': leader_board[sid_username_dic[i]]['losses'], 'tie': leader_board[sid_username_dic[i]]['tie']+1}})
                     with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
                         f_write_leaderboard.write(str(leader_board))
             server.emit('tie')
@@ -293,26 +262,6 @@ def get_choosen_move(sid, move):
 
 
 # ==========================================================
-
-
-def palce_table(dic):
-    board = ''
-    second_time = False
-    for i in range(1, 17, 4):
-        if not second_time:
-            board += f'''______ _____ _____ _____
-|     |     |     |     |
-| {dic[i][1]}  | {dic[i+1][1]}  | {dic[i+2][1]}  | {dic[i+3][1]}  |
-|_____|_____|_____|_____|'''
-
-        else:
-            board += f'''
-|     |     |     |     |
-| {dic[i][1]}  | {dic[i+1][1]}  | {dic[i+2][1]}  | {dic[i+3][1]}  |
-|_____|_____|_____|_____|'''
-
-        second_time = True
-    return board
 
 
 def win_condition(dic):  # gives all Columns and Rows and Diameters to check table
@@ -345,8 +294,8 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
                 # ------------- start updating leaderboard for loser ------------------------
                 for i in ready_players:
                     if i != player_did_last_move[0]:
-                        leader_board.update({sid_username_dic[player_did_last_move[i]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
-                                                                                         ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                        leader_board.update({sid_username_dic[i]: {'wins': leader_board[sid_username_dic[i]]
+                                                                   ['wins'], 'losses': leader_board[sid_username_dic[i]]['losses']+1, 'tie': leader_board[sid_username_dic[i]]['tie']}})
                         with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
                             f_write_leaderboard.write(str(leader_board))
                         server.emit(
@@ -382,8 +331,8 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
                 # ------------- start updating leaderboard for loser ------------------------
                 for i in ready_players:
                     if i != player_did_last_move[0]:
-                        leader_board.update({sid_username_dic[player_did_last_move[i]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
-                                                                                         ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                        leader_board.update({sid_username_dic[i]: {'wins': leader_board[sid_username_dic[i]]
+                                                                   ['wins'], 'losses': leader_board[sid_username_dic[i]]['losses']+1, 'tie': leader_board[sid_username_dic[i]]['tie']}})
                         with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
                             f_write_leaderboard.write(str(leader_board))
                         server.emit(
@@ -415,8 +364,8 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
             # ------------- start updating leaderboard for loser ------------------------
             for i in ready_players:
                 if i != player_did_last_move[0]:
-                    leader_board.update({sid_username_dic[player_did_last_move[i]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
-                                                                                     ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                    leader_board.update({sid_username_dic[i]: {'wins': leader_board[sid_username_dic[i]]
+                                                               ['wins'], 'losses': leader_board[sid_username_dic[i]]['losses']+1, 'tie': leader_board[sid_username_dic[i]]['tie']}})
                     with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
                         f_write_leaderboard.write(str(leader_board))
                     server.emit(
@@ -449,8 +398,8 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
             # ------------- start updating leaderboard for loser ------------------------
             for i in ready_players:
                 if i != player_did_last_move[0]:
-                    leader_board.update({sid_username_dic[player_did_last_move[i]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
-                                                                                     ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                    leader_board.update({sid_username_dic[i]: {'wins': leader_board[sid_username_dic[i]]
+                                                               ['wins'], 'losses': leader_board[sid_username_dic[i]]['losses']+1, 'tie': leader_board[sid_username_dic[i]]['tie']}})
                     with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
                         f_write_leaderboard.write(str(leader_board))
                     server.emit(
@@ -461,103 +410,11 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
 # ------------- checks that all items in foo have any common char ------------ #
 
 
-def check_table(foo, game, dic):
-    common = []
-    for i in range(0, 4):
-        if dic[foo[1]][0][i] == dic[foo[0]][0][i]:
-            common.append(dic[foo[1]][0][i])
-        else:
-            common.append(0)
-
-    for i in range(2, 4):
-        for j in range(4):
-            if common[j] == 0:
-                continue
-            else:
-                if dic[foo[i]][0][j] == common[j]:
-                    continue
-                else:
-                    common[j] = 0
-
-    for i in common:
-        if i != 0:
-            game = True
-            return game
-    return game
-
-
 def main_game():
-    # global piece_to_move
-    # global shape_to_move
     id_ = ready_players[0]
 
     request_choosen_piece(id_)
 
-
-"""     Big_blue_hallowtop_square_ = termcolor.colored('□', 'blue')
-    Big_yellow_hallowtop_square_ = termcolor.colored('□', 'yellow')
-    Small_blue_hallowtop_square_ = termcolor.colored('⋄', 'blue')
-    Small_yellow_hallowtop_square_ = termcolor.colored('⋄', 'yellow')
-    Little_yellow_solid_square_ = termcolor.colored('▪', 'yellow')
-    Little_blue_solid_square_ = termcolor.colored('▪', 'blue')
-    Small_blue_little_circle_ = termcolor.colored('•', 'blue')
-    Small_yellow_little_circle_ = termcolor.colored('•', 'yellow')
-    Big_blue_hallowtop_circle_ = termcolor.colored('⦿', 'blue')
-    Big_yellow_hallowtop_circle_ = termcolor.colored('⦿', 'yellow')
-    Small_blue_hallowtop_circle_ = termcolor.colored('⚬', 'blue')
-    Small_yellow_hallowtop_circle_ = termcolor.colored('⚬', 'yellow')
-    Left_parantesis_ = termcolor.colored('(', 'cyan', attrs=['bold'])
-    Right_parantesis_ = termcolor.colored(')', 'cyan', attrs=['bold'])
-    shapes = {
-        'bbss': '\U0001F7E6',
-        'byss': '\U0001F7E8',
-        'sbss': f'{Little_blue_solid_square_} ',
-        'syss': f'{Little_yellow_solid_square_} ',
-        'bbhs': f'{Big_blue_hallowtop_square_} ',
-        'byhs': f'{Big_yellow_hallowtop_square_} ',
-        'sbhs': f'{Small_blue_hallowtop_square_} ',
-        'syhs': f'{Small_yellow_hallowtop_square_} ',
-        'bbsc': '\U0001F535',
-        'bysc': '\U0001F7E1',
-        'sbsc': f'{Small_blue_little_circle_} ',
-        'sysc': f'{Small_yellow_little_circle_} ',
-        'bbhc': f'{Big_blue_hallowtop_circle_} ',
-        'byhc': f'{Big_yellow_hallowtop_circle_}',
-        'sbhc': f'{Small_blue_hallowtop_circle_} ',
-        'syhc': f'{Small_yellow_hallowtop_circle_}'
-    } """
-
-# while not piece_to_move:  # avoid race conditon when it is empty
-#    pass
-
-"""number = piece_to_move[0]
-    shape = shape_to_move[0]
-    count = 2
-    while(number < 17):
-        dict.update({number: (shape, shapes[shape])})
-        board = palce_table(dict)
-        if count % 2 == 0:  # to seperate player1 and 2
-            server.emit('get_board', board, room=ready_players[1])
-
-        else:
-            server.emit('get_board', board, room=ready_players[0])
-
-        if win_condition(dict):
-            break
-
-        piece_to_move = []
-        shape_to_move = []
-
-        if count % 2 == 0:
-            request_choosen_piece(ready_players[1])
-        else:
-            request_choosen_piece(ready_players[0])
-
-        number = piece_to_move[0]
-        shape = shape_to_move[0]
-
-        count += 1
-"""
 
 # -----------------------------------------------------
 
@@ -567,48 +424,6 @@ def connect(sid, environ, auth):
     print(sid, "connected!")
     print(environ['REMOTE_PORT'])  # !1
 
-
-"""@server.on('welcome')  # client sends data
-def welcome(sid, data):
-    user_name = data['user_name']
-    age = data['age']
-    print(user_name, age)
-    name_list.append((user_name, age))
-    if not _is_user_name_exist(user_name):
-        name_list.append((user_name, age))
-        return 'added successfully'
-    else:
-        return 'this user name exist, choose another one'
-    # print(f'{sid}', 'said', data)
-
-
-@server.on('get_status')
-def get_status(sid, data):
-    num_players = len(name_list)
-    return num_players
-
-
-@server.on('start_game')
-def start_game(sid, data):  # {'user1':..., 'user2'...}
-    user1 = data['user1']  # check kon user1 vojod dashter bashe
-    user2 = data['user2']
-    age1, age2 = _get_age(user1), _get_age(user2)
-    games.append([(user1, age1), (user2, age2)])
-    return f'game started between {user1} & {user2}'
-
-
-@server.on('get_rival_age')
-def get_rival_age(sid, user):
-    for game in games:
-        user1 = game[0]
-        user2 = game[1]
-
-        if user1[0] == user:
-            return user2[1]
-        elif user2[0] == user:
-            return user1[1]
-    return 'game not found'
-"""
 
 app = WSGIApp(server)
 
