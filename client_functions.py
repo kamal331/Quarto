@@ -4,6 +4,8 @@ import binascii
 from backports.pbkdf2 import pbkdf2_hmac
 
 
+# ------------------------ Sign Up ------------------------
+
 def sign_up_message():
     Warning_ = termcolor.colored(
         'Warning', 'magenta', attrs=['underline', 'bold'])
@@ -133,6 +135,10 @@ def is_pass_Strong(password):
     return False
 
 
+def confirm_pass(password, confirm_password):
+    return password == confirm_password
+
+
 def pbkdf2_hash(password):
     salt = binascii.unhexlify('aaef2d3f4d77ac66e9c5a6c3d8f921d1')
     passwd = f"{password}".encode("utf8")
@@ -150,6 +156,8 @@ def email_validity(email):
 
     return False
 
+
+# ------------------------ About game creator ------------------------
 
 def about_game_creator():
     Read_these_ = termcolor.colored('Read these:', 'red', 'on_white')
@@ -198,6 +206,8 @@ def about_game_creator():
     ''', 'cyan', attrs=['bold'])
 
 
+# ------------------------ RTBF ------------------------
+
 def rtbf():
 
     wikipedia_website_for_rtbf = termcolor.colored(
@@ -218,6 +228,8 @@ def rtbf():
     You must enter your User name, Password.
     ''')
 
+
+# ------------------------ Privacy Policy ------------------------
 
 def privacy_policy_text():
     termcolor.cprint('''

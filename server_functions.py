@@ -1,5 +1,7 @@
 import ast
 
+# ------------------------ Sign Up ------------------------
+
 
 def is_uname_valid(user_name, database):
     if len(user_name) <= 3:
@@ -15,6 +17,8 @@ def is_uname_valid(user_name, database):
 
     return True
 
+
+# ------------------------ Login ------------------------
 
 def is_login_info_valid(login_info, database):
     login_check = False
@@ -41,13 +45,13 @@ def add_new_sid_to_username_record(sid, login_info):
         f_write_sid.write(str(sid_username_dic))
 
 
+# ------------------------ RTBF ------------------------
+
 def delete_user_data(sid, account_info):
     with open('database_file.txt', 'r') as f_read_database:
         database = f_read_database.read()
     database = ast.literal_eval(database)
 
-    # while it wasn't exis: ask the user enter another user name
-    # albate in bayad toye client darkhast ersal she hengam neveshtan user_name
     for u in account_info:
         del database[u]
 
@@ -69,16 +73,18 @@ def delete_user_data(sid, account_info):
         sid_username_dic = f_read_sid.read()
     sid_username_dic = ast.literal_eval(sid_username_dic)
 
+    sid_username_dic_copy = sid_username_dic.copy()
     for u in account_info:
-        for k in sid_username_dic:
+        for k in sid_username_dic_copy:
             if sid_username_dic[k] == u:
+                print(1111111111111111111111111111111)
                 del sid_username_dic[k]  # delete all sid record
 
     with open('sid_username_file.txt', 'w') as f_write_sid:  # re-write new dic
         f_write_sid.write(str(sid_username_dic))
 
 
-# ------------------------ game ---------------------------
+# ------------------------ Game ---------------------------
 def place_table(dic):
     board = ''
     second_time = False

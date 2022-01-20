@@ -1,21 +1,14 @@
 from asyncio import sleep
 from asyncore import read
-from dataclasses import dataclass
-from http import client
 from socketio import *
 from gevent import pywsgi
 from server_functions import *
 import ast
 import termcolor
 server = Server(async_mode='gevent')
-# name_list = []  # (name, age)
-# games = []  # [(name1, age1), (name2, age2)]
-# users_data = {}
 
-""" Must me added
-    Licence info
-"""
 
+# ------------------------ Sign Up ------------------------
 
 @server.on('add_user')
 def add_user(sid, user_data):
@@ -24,8 +17,6 @@ def add_user(sid, user_data):
         database = f_read_database.read()
     database = ast.literal_eval(database)
 
-    # while it wasn't exis: ask the user enter another user name
-    # albate in bayad toye client darkhast ersal she hengam neveshtan user_name
     database.update(user_data)
 
     with open('database_file.txt', 'w') as f_write_database:  # update database file
@@ -60,6 +51,8 @@ def add_user_to_leader_board(sid, leader_board_info):
     print(leader_board)
 
 
+# ------------------------ Login ------------------------
+
 @server.on('ckeck_login_info')
 def ckeck_login_info(sid, login_info):
 
@@ -72,17 +65,10 @@ def ckeck_login_info(sid, login_info):
     if check_l:
         add_new_sid_to_username_record(sid, login_info)
 
-    # chon room=sid nadare, be hame client ha ersal mikoneh? ya chon resp dare intor nist?
     return check_l
 
-    """ login_check = False
-    for k_login in login_info:
-        for k_database in database:
-            if k_login == k_database:
-                if login_info[k_login]['password'] == database[k_database]['password']:
-                    login_check = True
-    return login_check """
 
+# ------------------------ Leader Board ------------------------
 
 @server.on('give_leader_board')
 def give_leader_board(sid):
@@ -91,11 +77,25 @@ def give_leader_board(sid):
         leader_board = f_read_leaderboard.read()
     leader_board = ast.literal_eval(leader_board)
 
-    server.emit('get_leader_board', leader_board, room=sid)
-# @server.on('send_pass_hash')
-# def send_pass_hash(sid, user_name):  # room=player[0]
-#    server.emit('get_pass_hash_resp', database[user_name]['password'])
+    sorted_leader_board = []
+    wins_value_list = []
+    for k in leader_board:  # Creating a list of all wins value
+        wins_value_list.append(leader_board[k]['wins'])
 
+    wins_value_list.sort(reverse=True)  # reverse it
+
+    for i in wins_value_list:  # create a list of sorted record in leader board
+        for k in leader_board:
+            if leader_board[k]['wins'] == i:
+                record = {k: leader_board[k]}
+                sorted_leader_board.append(record)
+
+    res = []
+    [res.append(x) for x in sorted_leader_board if x not in res]
+    server.emit('get_leader_board', res, room=sid)
+
+
+# ------------------------ RTBF ------------------------
 
 @server.on('get_rtbf_req')
 def get_rtbf_req(sid, account_info):
@@ -114,7 +114,7 @@ def get_rtbf_req(sid, account_info):
         server.emit('get_rtbf_resp', False, room=sid)
 
 
-# ------------------------------------------------
+# ------------------------ Game ------------------------
 ready_players = []
 can_start_game = False
 

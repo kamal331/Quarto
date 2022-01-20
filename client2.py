@@ -23,16 +23,10 @@ def disconnect():
     termcolor.cprint('Disconnected', 'magenta', attrs=['bold'])
 
 
-def start_game_resp(response):
-    print(response)
-
-
-def confirm_pass(password, confirm_password):
-    return password == confirm_password
-
-
 check_user_name = False
 is_check_user_name_done = False
+
+# ------------------------ Sign Up ------------------------
 
 
 def sign_up():
@@ -127,6 +121,8 @@ def is_user_name_valid_resp(user_name_validity_answer):
         is_check_user_name_done = True
 
 
+# ------------------------ Login ------------------------
+
 def login():
     termcolor.cprint('''Welcome to login page \U0001F603 ''',
                      'cyan', attrs=['bold'])
@@ -152,19 +148,24 @@ def check_login_resp(response):
     login()
 
 
+# ------------------------ Leader Board ------------------------
+
 def request_leader_board():
     client.emit('give_leader_board')
 
 
 @ client.on('get_leader_board')
 def get_leader_board(leader_board):
-    print(leader_board)
+    for item in leader_board:
+        print(item)
 
     back_to_menu = input(termcolor.colored(
         'Enter any key to back to menu: ', 'yellow', attrs=['bold']))
 
     start()
 
+
+# ------------------------ RTBF ------------------------
 
 @client.on('get_rtbf_resp')
 def get_rtbf_resp(rtbf_resp):
@@ -176,6 +177,8 @@ def get_rtbf_resp(rtbf_resp):
 
     start()
 
+
+# ------------------------ First Page ------------------------
 
 def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
     Login_ = termcolor.colored('2) Leader board (enter 2)',
@@ -248,7 +251,8 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         start()
 
 
-# ------------------------------------------------------
+# # ------------------------ Game ------------------------
+
 def start_new_game():
     client.emit('give_ready_players', '1')
 
