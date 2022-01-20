@@ -1,1 +1,1 @@
-{'hannah': {'wins': 1, 'losses': 0, 'tie': 0}, 'angella': {'wins': 0, 'losses': 0, 'tie': 0}}
+{'hannah': {'wins': 3, 'losses': 1, 'tie': 0}, 'angella': {'wins': 0, 'losses': 0, 'tie': 0}}

@@ -302,7 +302,7 @@ def get_board(board):
 
 @client.on('i_won')
 def i_won(won_text):
-    termcolor.cprint(won_text, 'green', attrs=['bold'])
+    termcolor.cprint(won_text+'\n', 'green', attrs=['bold'])
     back_to_menu = input(termcolor.colored(
         'Enter any key to back to menu: ', 'cyan', attrs=['bold']))
     start()
@@ -320,7 +320,7 @@ def i_lost(lost_text):
 def tie():
     termcolor.cprint('Tie!')
     back_to_menu = input(termcolor.colored(
-        'Enter any key to back to menu \U0001F971', 'cyan', attrs=['bold']))
+        'Enter any key to back to menu \U0001F971 \n', 'cyan', attrs=['bold']))
     start()
 
 
