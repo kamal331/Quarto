@@ -83,10 +83,12 @@ def sign_up():
     if confirm == 'yes':
         wins = 0
         losses = 0
+        tie_ = 0
         leader_board_info = {}
         leader_board_info[user_name] = {
             'wins': wins,
-            'losses': losses
+            'losses': losses,
+            'tie': tie_
         }
         client.emit('add_user_to_leader_board', leader_board_info)
         # we don't pass hashed password to server!
@@ -149,6 +151,8 @@ def login():
 @ client.on('check_login_resp')
 def check_login_resp(response):
     if response:
+        termcolor.cprint('Wait for the second player...',
+                         'yellow', attrs=['bold'])
         start_new_game()
         return True
     termcolor.cprint('Incorrect login info! Try again.',
@@ -277,16 +281,15 @@ def choose_piece(pieces):
 
 
 @client.on('choose_move')
-def choose_move(choosed_piece_to_move):  # agar bishtar az 16 dad
+def choose_move(choosed_piece_to_move_data):  # agar bishtar az 16 dad
     move = input(termcolor.colored(
-        f'move {choosed_piece_to_move} to which square?: ', 'cyan', attrs=['bold']))
-    numbers_can_choose = ['1', '2', '3', '4', '5', '6', '7',
-                          '8', '9', '10', '11', '12', '13', '14', '15', '16']
+        f'move {choosed_piece_to_move_data[0]} to which square?: ', 'cyan', attrs=['bold']))
+    numbers_can_choose = choosed_piece_to_move_data[1]
 
     while move not in numbers_can_choose:
         termcolor.cprint('Invalid input.', 'yellow', attrs=['bold'])
         move = input(termcolor.colored(
-            f'move {choosed_piece_to_move} to which square?: ', 'cyan', attrs=['bold']))
+            f'move {choosed_piece_to_move_data[0]} to which square?: ', 'cyan', attrs=['bold']))
 
     client.emit('get_choosen_move', int(move))
 
@@ -300,11 +303,25 @@ def get_board(board):
 @client.on('i_won')
 def i_won(won_text):
     termcolor.cprint(won_text, 'green', attrs=['bold'])
+    back_to_menu = input(termcolor.colored(
+        'Enter any key to back to menu: ', 'cyan', attrs=['bold']))
+    start()
 
 
 @client.on('i_lost')
 def i_lost(lost_text):
-    termcolor.cprint(lost_text, 'yellow', attrs=['bold'])
+    termcolor.cprint(lost_text+'\n', 'yellow', attrs=['bold'])
+    back_to_menu = input(termcolor.colored(
+        'Enter any key to back to menu\n', 'cyan', attrs=['bold']))
+    start()
+
+
+@client.on('tie')
+def tie():
+    termcolor.cprint('Tie!')
+    back_to_menu = input(termcolor.colored(
+        'Enter any key to back to menu \U0001F971', 'cyan', attrs=['bold']))
+    start()
 
 
 # -----------------------------------

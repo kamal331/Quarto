@@ -5,7 +5,6 @@ from backports.pbkdf2 import pbkdf2_hmac
 
 
 def sign_up_message():
-    termcolor.cprint('READ THIS:', 'red', 'on_white')
     Warning_ = termcolor.colored(
         'Warning', 'magenta', attrs=['underline', 'bold'])
     Greate_pass_ = termcolor.colored('DLy$Bds2}bS!7Mis^d1AdV7%pSBrQ@', 'cyan')

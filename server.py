@@ -1,5 +1,6 @@
 from asyncio import sleep
 from asyncore import read
+from dataclasses import dataclass
 from http import client
 from socketio import *
 from gevent import pywsgi
@@ -162,12 +163,15 @@ def give_ready_players(sid, ready):
 
 pieces = ['bbss', 'byss', 'sbss', 'syss', 'bbhs', 'byhs', 'sbhs',
           'syhs', 'bbsc', 'bysc', 'sbsc', 'sysc', 'bbhc', 'byhc', 'sbhc', 'syhc']
-
+count = 2
 piece_to_move = []
 shape_to_move = []
+movenumbers_can_choose = ['1', '2', '3', '4', '5', '6', '7',
+                          '8', '9', '10', '11', '12', '13', '14', '15', '16']
 
 
 def request_choosen_piece(id_):
+
     server.emit('choose_piece', pieces, room=id_)
 
 
@@ -181,7 +185,10 @@ def get_choosen_piece(sid, choosed_piece):
 
 
 def request_choosen_move(sid, choosed_piece):
-    server.emit('choose_move', choosed_piece, room=sid)
+    give_choose_move_data = []
+    give_choose_move_data.append(choosed_piece)
+    give_choose_move_data.append(movenumbers_can_choose)
+    server.emit('choose_move', give_choose_move_data, room=sid)
 
 
 player_did_last_move = []
@@ -192,6 +199,8 @@ for i in range(1, 17):
 
 @server.on('get_choosen_move')
 def get_choosen_move(sid, move):
+    global count
+    global movenumbers_can_choose
     global player_did_last_move
     global piece_to_move
     global shape_to_move
@@ -231,19 +240,20 @@ def get_choosen_move(sid, move):
     piece_to_move.append(move)
     number = move
     shape = shape_to_move[0]
-    count = 2
+    movenumbers_can_choose.remove(str(number))
     # while(number < 17):
     dic.update({number: (shape, shapes[shape])})
     table = palce_table(dic)
 
-    if count % 2 == 0:  # to seperate player1 and 2
-        server.emit('get_board', table)
+    # if count % 2 == 0:  # to seperate player1 and 2
+    server.emit('get_board', table)
 
-        # else:
-        #    server.emit('get_board', table, room=ready_players[0])
+    # else:
+    #    server.emit('get_board', table, room=ready_players[0])
 
     if not win_condition(dic):
-
+        if not movenumbers_can_choose:
+            server.emit('tie')
         piece_to_move = []
         shape_to_move = []
 
@@ -297,11 +307,26 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
         if flag1:
             game = check_table(column, game, dic)
             if game:
-
                 server.emit('i_won', 'Nice! You won!',
                             room=player_did_last_move[0])
+                # ---------- start updating leaderboard for winner ------------------------
+                with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+                    leader_board = f_read_leaderboard.read()
+                leader_board = ast.literal_eval(leader_board)
+
+                with open('sid_username_file.txt', 'r') as f_read_sid:
+                    sid_username_dic = f_read_sid.read()
+                sid_username_dic = ast.literal_eval(sid_username_dic)
+
+                leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                                 ['wins']+1, 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses'], 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+                    f_write_leaderboard.write(str(leader_board))
+                # ------------- start updating leaderboard for loser ------------------------
                 for i in ready_players:
                     if i != player_did_last_move[0]:
+                        leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                                         ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
                         server.emit(
                             'i_lost', 'OH! You lost the game...', room=i)
 
@@ -319,14 +344,28 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
             game = check_table(row, game, dic)
 
             if game:
-
                 server.emit('i_won', 'Nice! You won!',
                             room=player_did_last_move[0])
+                # ---------- start updating leaderboard for winner ------------------------
+                with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+                    leader_board = f_read_leaderboard.read()
+                leader_board = ast.literal_eval(leader_board)
+
+                with open('sid_username_file.txt', 'r') as f_read_sid:
+                    sid_username_dic = f_read_sid.read()
+                sid_username_dic = ast.literal_eval(sid_username_dic)
+
+                leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                                 ['wins']+1, 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses'], 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+                    f_write_leaderboard.write(str(leader_board))
+                # ------------- start updating leaderboard for loser ------------------------
                 for i in ready_players:
                     if i != player_did_last_move[0]:
+                        leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                                         ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
                         server.emit(
                             'i_lost', 'OH! You lost the game...', room=i)
-
                 return game
 # ---------------------------- gives two Diameters --------------------------- #
     d1 = [1, 6, 11, 16]
@@ -338,13 +377,28 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
     if flag1:
         game = check_table(d1, game, dic)
         if game:
-
             server.emit('i_won', 'Nice! You won!',
                         room=player_did_last_move[0])
+            # ---------- start updating leaderboard for winner ------------------------
+            with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+                leader_board = f_read_leaderboard.read()
+            leader_board = ast.literal_eval(leader_board)
+
+            with open('sid_username_file.txt', 'r') as f_read_sid:
+                sid_username_dic = f_read_sid.read()
+            sid_username_dic = ast.literal_eval(sid_username_dic)
+
+            leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                             ['wins']+1, 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses'], 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+            with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+                f_write_leaderboard.write(str(leader_board))
+            # ------------- start updating leaderboard for loser ------------------------
             for i in ready_players:
                 if i != player_did_last_move[0]:
-                    server.emit('i_lost', 'OH! You lost the game...', room=i)
-
+                    leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                                     ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                    server.emit(
+                        'i_lost', 'OH! You lost the game...', room=i)
             return game
 
     d2 = [4, 7, 10, 13]
@@ -356,13 +410,28 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
     if flag1:
         game = check_table(d2, game, dic)
         if game:
-
             server.emit('i_won', 'Nice! You won!',
                         room=player_did_last_move[0])
+            # ---------- start updating leaderboard for winner ------------------------
+            with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+                leader_board = f_read_leaderboard.read()
+            leader_board = ast.literal_eval(leader_board)
+
+            with open('sid_username_file.txt', 'r') as f_read_sid:
+                sid_username_dic = f_read_sid.read()
+            sid_username_dic = ast.literal_eval(sid_username_dic)
+
+            leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                             ['wins']+1, 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses'], 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+            with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+                f_write_leaderboard.write(str(leader_board))
+            # ------------- start updating leaderboard for loser ------------------------
             for i in ready_players:
                 if i != player_did_last_move[0]:
-                    server.emit('i_lost', 'OH! You lost the game...', room=i)
-
+                    leader_board.update({sid_username_dic[player_did_last_move[0]]: {'wins': leader_board[sid_username_dic[player_did_last_move[0]]]
+                                                                                     ['wins'], 'losses': leader_board[sid_username_dic[player_did_last_move[0]]]['losses']+1, 'tie': leader_board[sid_username_dic[player_did_last_move[0]]]['tie']}})
+                    server.emit(
+                        'i_lost', 'OH! You lost the game...', room=i)
             return game
 
     return game
