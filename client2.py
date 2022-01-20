@@ -49,7 +49,7 @@ def sign_up():
             pass
 
     password = getpass(termcolor.colored(
-        'Password: ', 'cyan'))  # getting hiden pass for security
+        'Password: ', 'cyan', attrs=['bold']))  # getting hiden pass for security
     while not is_pass_Strong(password):
         termcolor.cprint('your password is not strong enough',
                          'yellow', attrs=['bold'])
@@ -199,6 +199,9 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
     Delete_account_ = termcolor.colored(
         '6) Delete account (Right To Be Forgotten)', 'green', attrs=['bold'])
 
+    Privacy_policy_ = termcolor.colored(
+        '7) Privacy Policy', 'yellow', attrs=['bold'])
+
     operation = input(termcolor.colored(f'''Hi \U0001F64B
         What do you want to do?
         1) Login (enter 1)
@@ -207,6 +210,7 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         {Help_page_}
         {About_me_}
         {Delete_account_}
+        {Privacy_policy_}
         ''', 'cyan', attrs=['bold']))
 
     if operation == '1':
@@ -239,13 +243,16 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         password = {'password': password}  # creating dict
         account_info = {}
         account_info[user_name] = password
-        print(account_info)
         client.emit('get_rtbf_req', account_info)  # *******************88
+
+    elif operation == '7':
+        privacy_policy_text()
+        start()
 
     else:
         termcolor.cprint(
             '''Sorry. you wrote something that is invalid.
-            please enter "1" or "2" or "3" or "4" or "5" or "6" ''', 'yellow', attrs=['bold'])
+            please enter "1" or "2" or "3" or "4" or "5" or "6" or "7" ''', 'yellow', attrs=['bold'])
         start()
 
 

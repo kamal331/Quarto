@@ -217,3 +217,36 @@ def rtbf():
     We respect your privacy. So you can simply delete your account.
     You must enter your User name, Password.
     ''')
+
+
+def privacy_policy_text():
+    termcolor.cprint('''
+    I (means game creator) am serious about your privacy Because it is your "right".
+    I put privacy at first.
+    
+    What I collect?
+
+    1) User Name: your user name is public.
+    
+    2) Wins, Lossess and Ties: Your Wins, Lossess, Ties are public.
+    
+    3) E-mail: your e-mail address is stored to my server. (email address is optional. And is NOT required.
+    because it is your privacy.)
+    
+    4) Hashed password: Your password is Hashed with PBKDF2 hash algorithm which is recommended by
+    NIST (National Institute of Standards and Technology)   ---> NIST Special Publication SP800-63B-3
+    
+    5) ID: it is a random string and everytime you connect to server, it will be a different thing. 
+
+    6) When you transfer data to my server, this is happenning in server:
+    127.0.0.1 (IP) - - [2022-01-20 12:08:24] "GET /socket.io/?transport=polling&EIO=4&sid=LoYaykW4wtehfdkAAAA&t=1642652533.6654613 HTTP/1.1" 200 157 0.931671
+    I don't record it. But this prints in server. If you know how to remove this, I will be happy if you tell me.
+    
+    Nothing else \U0001F60A
+    
+    NOTE: You can always delete your account. (It is your right to be forgotten)
+
+    ''', 'cyan', attrs=['bold'])
+
+    back_to_menu = input(termcolor.colored(
+        'Enter any key to back to menu: ', 'cyan', attrs=['bold']))
