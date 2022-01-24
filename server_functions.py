@@ -9,7 +9,6 @@ def is_uname_valid(user_name, database):
 
     for char in user_name:  # space and sumbols must not be in user_name.
         if char in ''' !@#$%^&*()-=+`~|}]{['"?/\.<:;,''':
-            print('user name must not include any symbols (except "_")')
             return False
 
     if user_name in database:
@@ -77,7 +76,6 @@ def delete_user_data(sid, account_info):
     for u in account_info:
         for k in sid_username_dic_copy:
             if sid_username_dic[k] == u:
-                print(1111111111111111111111111111111)
                 del sid_username_dic[k]  # delete all sid record
 
     with open('sid_username_file.txt', 'w') as f_write_sid:  # re-write new dic

@@ -2,7 +2,6 @@ from client_functions import *
 import termcolor
 from socketio import *
 from getpass import getpass
-import os
 
 
 client = Client()
@@ -271,11 +270,9 @@ def can_i_join(can_i):
 
 
 @client.on('choose_piece')
-def choose_piece(pieces_data):
-    pieces = pieces_data[0]
-    emojies = pieces_data[1]
-    choosed_piece = input(
-        f'pick a piece from {emojies}: \n')
+def choose_piece(pieces):
+    choosed_piece = input(termcolor.colored(
+        f'pick a piece from {pieces}: \n', 'cyan', attrs=['bold']))
 
     while choosed_piece not in pieces:  # avoid invalid input
         termcolor.cprint(

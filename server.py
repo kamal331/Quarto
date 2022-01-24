@@ -1,5 +1,3 @@
-from asyncio import sleep
-from asyncore import read
 from socketio import *
 from gevent import pywsgi
 from server_functions import *
@@ -21,8 +19,6 @@ def add_user(sid, user_data):
 
     with open('database_file.txt', 'w') as f_write_database:  # update database file
         f_write_database.write(str(database))
-
-    print(database)  # delete after end **********
 
 
 @server.on('user_name_validity')
@@ -47,8 +43,6 @@ def add_user_to_leader_board(sid, leader_board_info):
 
     with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
         f_write_leaderboard.write(str(leader_board))
-
-    print(leader_board)
 
 
 # ------------------------ Login ------------------------
@@ -140,59 +134,16 @@ movenumbers_can_choose = ['1', '2', '3', '4', '5', '6', '7',
 
 pieces_data = []
 
-Big_blue_hallowtop_square_ = termcolor.colored('□', 'blue')
-Big_yellow_hallowtop_square_ = termcolor.colored('□', 'yellow')
-Small_blue_hallowtop_square_ = termcolor.colored('⋄', 'blue')
-Small_yellow_hallowtop_square_ = termcolor.colored('⋄', 'yellow')
-Little_yellow_solid_square_ = termcolor.colored('▪', 'yellow')
-Little_blue_solid_square_ = termcolor.colored('▪', 'blue')
-Small_blue_little_circle_ = termcolor.colored('•', 'blue')
-Small_yellow_little_circle_ = termcolor.colored('•', 'yellow')
-Big_blue_hallowtop_circle_ = termcolor.colored('⦿', 'blue')
-Big_yellow_hallowtop_circle_ = termcolor.colored('⦿', 'yellow')
-Small_blue_hallowtop_circle_ = termcolor.colored('⚬', 'blue')
-Small_yellow_hallowtop_circle_ = termcolor.colored('⚬', 'yellow')
-
-
-emojies = {
-    'bbss': '\U0001F7E6',
-    'byss': '\U0001F7E8',
-    'sbss': f'{Little_blue_solid_square_} ',
-    'syss': f'{Little_yellow_solid_square_} ',
-    'bbhs': f'{Big_blue_hallowtop_square_} ',
-    'byhs': f'{Big_yellow_hallowtop_square_} ',
-    'sbhs': f'{Small_blue_hallowtop_square_} ',
-    'syhs': f'{Small_yellow_hallowtop_square_} ',
-    'bbsc': '\U0001F535',
-    'bysc': '\U0001F7E1',
-    'sbsc': f'{Small_blue_little_circle_} ',
-    'sysc': f'{Small_yellow_little_circle_} ',
-    'bbhc': f'{Big_blue_hallowtop_circle_} ',
-    'byhc': f'{Big_yellow_hallowtop_circle_} ',
-    'sbhc': f'{Small_blue_hallowtop_circle_} ',
-    'syhc': f'{Small_yellow_hallowtop_circle_} '
-}
-
-pieces_data.append(pieces)
-pieces_data.append(emojies)
-print(emojies['sbss'])
-
 
 def request_choosen_piece(id_):
-    global pieces_data
-    pieces_data = []
-    pieces_data.append(pieces)
-    pieces_data.append(emojies)
-    server.emit('choose_piece', pieces_data, room=id_)
+    server.emit('choose_piece', pieces, room=id_)
 
 
 @server.on('get_choosen_piece')
 def get_choosen_piece(sid, choosed_piece):
-    global emojies
     for i in ready_players:
         if i != sid:
             pieces.remove(choosed_piece)
-            del emojies[choosed_piece]
             shape_to_move.append(choosed_piece)
             request_choosen_move(i, choosed_piece)
 
@@ -470,7 +421,6 @@ def main_game():
 
 def delete_ready_players_to_free_server():
     global ready_players
-    global emojies
     global pieces
     global movenumbers_can_choose
     global count
@@ -490,50 +440,49 @@ def delete_ready_players_to_free_server():
                               '8', '9', '10', '11', '12', '13', '14', '15', '16']
     ready_players = []
 
-    Big_blue_hallowtop_square_ = termcolor.colored('□', 'blue')
-    Big_yellow_hallowtop_square_ = termcolor.colored('□', 'yellow')
-    Small_blue_hallowtop_square_ = termcolor.colored('⋄', 'blue')
-    Small_yellow_hallowtop_square_ = termcolor.colored('⋄', 'yellow')
-    Little_yellow_solid_square_ = termcolor.colored('▪', 'yellow')
-    Little_blue_solid_square_ = termcolor.colored('▪', 'blue')
-    Small_blue_little_circle_ = termcolor.colored('•', 'blue')
-    Small_yellow_little_circle_ = termcolor.colored('•', 'yellow')
-    Big_blue_hallowtop_circle_ = termcolor.colored('⦿', 'blue')
-    Big_yellow_hallowtop_circle_ = termcolor.colored('⦿', 'yellow')
-    Small_blue_hallowtop_circle_ = termcolor.colored('⚬', 'blue')
-    Small_yellow_hallowtop_circle_ = termcolor.colored('⚬', 'yellow')
-
-    emojies = {
-        'bbss': '\U0001F7E6',
-        'byss': '\U0001F7E8',
-        'sbss': f'{Little_blue_solid_square_} ',
-        'syss': f'{Little_yellow_solid_square_} ',
-        'bbhs': f'{Big_blue_hallowtop_square_} ',
-        'byhs': f'{Big_yellow_hallowtop_square_} ',
-        'sbhs': f'{Small_blue_hallowtop_square_} ',
-        'syhs': f'{Small_yellow_hallowtop_square_} ',
-        'bbsc': '\U0001F535',
-        'bysc': '\U0001F7E1',
-        'sbsc': f'{Small_blue_little_circle_} ',
-        'sysc': f'{Small_yellow_little_circle_} ',
-        'bbhc': f'{Big_blue_hallowtop_circle_} ',
-        'byhc': f'{Big_yellow_hallowtop_circle_} ',
-        'sbhc': f'{Small_blue_hallowtop_circle_} ',
-        'syhc': f'{Small_yellow_hallowtop_circle_} '
-    }
-
     player_did_last_move = []
     dic = {}
     for i in range(1, 17):
         dic[i] = ('empty', '  ')
 
-# -------------------------- Connect ----------------------------
 
+# -------------------------- Connect ----------------------------
 
 @server.event  # ye baksh ke migim client mitone behet etelaat bede
 def connect(sid, environ, auth):
     print(sid, "connected!")
     print(environ['REMOTE_PORT'])  # !1
+
+
+# -------------------------- Disconnect ------------------------
+@server.event
+def disconnect(sid):
+    if sid in ready_players:
+        for player in ready_players:
+            if player != sid and player != None:
+                server.emit('i_won', 'The other player has left the game! You won!',
+                            room=player)
+                # ---------- start updating leaderboard for winner ------------------------
+                with open('leaderboard_file.txt', 'r') as f_read_leaderboard:
+                    leader_board = f_read_leaderboard.read()
+                leader_board = ast.literal_eval(leader_board)
+
+                with open('sid_username_file.txt', 'r') as f_read_sid:
+                    sid_username_dic = f_read_sid.read()
+                sid_username_dic = ast.literal_eval(sid_username_dic)
+
+                leader_board.update({sid_username_dic[player]: {'wins': leader_board[sid_username_dic[player]]
+                                                                                    ['wins']+1, 'losses': leader_board[sid_username_dic[player]]['losses'], 'tie': leader_board[sid_username_dic[player]]['tie']}})
+
+        # ------------- start updating leaderboard for loser ------------------------
+        leader_board.update({sid_username_dic[sid]: {'wins': leader_board[sid_username_dic[sid]]
+                                                     ['wins'], 'losses': leader_board[sid_username_dic[sid]]['losses']+1, 'tie': leader_board[sid_username_dic[sid]]['tie']}})
+        with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+            f_write_leaderboard.write(str(leader_board))
+
+        delete_ready_players_to_free_server()
+
+    print(sid, 'Disconnect ')
 
 
 app = WSGIApp(server)

@@ -1,5 +1,4 @@
 import termcolor
-import os
 import binascii
 from backports.pbkdf2 import pbkdf2_hmac
 
