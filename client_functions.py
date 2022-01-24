@@ -159,7 +159,7 @@ def email_validity(email):
 
 # ------------------------ About game creator ------------------------
 
-def about_game_creator():
+def some_talk_text():
     Read_these_ = termcolor.colored('Read these:', 'red', 'on_white')
     I_LOVE_YOU_ = termcolor.colored(
         '"I LOVE YOU"', 'yellow', attrs=['bold'])

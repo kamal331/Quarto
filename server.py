@@ -138,17 +138,61 @@ shape_to_move = []
 movenumbers_can_choose = ['1', '2', '3', '4', '5', '6', '7',
                           '8', '9', '10', '11', '12', '13', '14', '15', '16']
 
+pieces_data = []
+
+Big_blue_hallowtop_square_ = termcolor.colored('□', 'blue')
+Big_yellow_hallowtop_square_ = termcolor.colored('□', 'yellow')
+Small_blue_hallowtop_square_ = termcolor.colored('⋄', 'blue')
+Small_yellow_hallowtop_square_ = termcolor.colored('⋄', 'yellow')
+Little_yellow_solid_square_ = termcolor.colored('▪', 'yellow')
+Little_blue_solid_square_ = termcolor.colored('▪', 'blue')
+Small_blue_little_circle_ = termcolor.colored('•', 'blue')
+Small_yellow_little_circle_ = termcolor.colored('•', 'yellow')
+Big_blue_hallowtop_circle_ = termcolor.colored('⦿', 'blue')
+Big_yellow_hallowtop_circle_ = termcolor.colored('⦿', 'yellow')
+Small_blue_hallowtop_circle_ = termcolor.colored('⚬', 'blue')
+Small_yellow_hallowtop_circle_ = termcolor.colored('⚬', 'yellow')
+
+
+emojies = {
+    'bbss': '\U0001F7E6',
+    'byss': '\U0001F7E8',
+    'sbss': f'{Little_blue_solid_square_} ',
+    'syss': f'{Little_yellow_solid_square_} ',
+    'bbhs': f'{Big_blue_hallowtop_square_} ',
+    'byhs': f'{Big_yellow_hallowtop_square_} ',
+    'sbhs': f'{Small_blue_hallowtop_square_} ',
+    'syhs': f'{Small_yellow_hallowtop_square_} ',
+    'bbsc': '\U0001F535',
+    'bysc': '\U0001F7E1',
+    'sbsc': f'{Small_blue_little_circle_} ',
+    'sysc': f'{Small_yellow_little_circle_} ',
+    'bbhc': f'{Big_blue_hallowtop_circle_} ',
+    'byhc': f'{Big_yellow_hallowtop_circle_} ',
+    'sbhc': f'{Small_blue_hallowtop_circle_} ',
+    'syhc': f'{Small_yellow_hallowtop_circle_} '
+}
+
+pieces_data.append(pieces)
+pieces_data.append(emojies)
+print(emojies['sbss'])
+
 
 def request_choosen_piece(id_):
-
-    server.emit('choose_piece', pieces, room=id_)
+    global pieces_data
+    pieces_data = []
+    pieces_data.append(pieces)
+    pieces_data.append(emojies)
+    server.emit('choose_piece', pieces_data, room=id_)
 
 
 @server.on('get_choosen_piece')
 def get_choosen_piece(sid, choosed_piece):
+    global emojies
     for i in ready_players:
         if i != sid:
             pieces.remove(choosed_piece)
+            del emojies[choosed_piece]
             shape_to_move.append(choosed_piece)
             request_choosen_move(i, choosed_piece)
 
@@ -242,6 +286,7 @@ def get_choosen_move(sid, move):
                     with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
                         f_write_leaderboard.write(str(leader_board))
             server.emit('tie')
+            delete_ready_players_to_free_server()
 
         # ---------- END updating leaderboard for the first player ------------------------
 
@@ -300,6 +345,7 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
                             f_write_leaderboard.write(str(leader_board))
                         server.emit(
                             'i_lost', 'OH! You lost the game...', room=i)
+                        delete_ready_players_to_free_server()
 
                 return game
 # ------------------------------ gives all Rows ------------------------------ #
@@ -337,6 +383,8 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
                             f_write_leaderboard.write(str(leader_board))
                         server.emit(
                             'i_lost', 'OH! You lost the game...', room=i)
+                        delete_ready_players_to_free_server()
+
                 return game
 # ---------------------------- gives two Diameters --------------------------- #
     d1 = [1, 6, 11, 16]
@@ -370,6 +418,7 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
                         f_write_leaderboard.write(str(leader_board))
                     server.emit(
                         'i_lost', 'OH! You lost the game...', room=i)
+                    delete_ready_players_to_free_server()
             return game
 
     d2 = [4, 7, 10, 13]
@@ -404,6 +453,7 @@ def win_condition(dic):  # gives all Columns and Rows and Diameters to check tab
                         f_write_leaderboard.write(str(leader_board))
                     server.emit(
                         'i_lost', 'OH! You lost the game...', room=i)
+                    delete_ready_players_to_free_server()
             return game
 
     return game
@@ -416,7 +466,68 @@ def main_game():
     request_choosen_piece(id_)
 
 
-# -----------------------------------------------------
+# ------------------------ After Game ----------------------------
+
+def delete_ready_players_to_free_server():
+    global ready_players
+    global emojies
+    global pieces
+    global movenumbers_can_choose
+    global count
+    global can_start_game
+    global piece_to_move
+    global shape_to_move
+    global player_did_last_move
+    global dic
+
+    can_start_game = False
+    pieces = ['bbss', 'byss', 'sbss', 'syss', 'bbhs', 'byhs', 'sbhs',
+              'syhs', 'bbsc', 'bysc', 'sbsc', 'sysc', 'bbhc', 'byhc', 'sbhc', 'syhc']
+    count = 2
+    piece_to_move = []
+    shape_to_move = []
+    movenumbers_can_choose = ['1', '2', '3', '4', '5', '6', '7',
+                              '8', '9', '10', '11', '12', '13', '14', '15', '16']
+    ready_players = []
+
+    Big_blue_hallowtop_square_ = termcolor.colored('□', 'blue')
+    Big_yellow_hallowtop_square_ = termcolor.colored('□', 'yellow')
+    Small_blue_hallowtop_square_ = termcolor.colored('⋄', 'blue')
+    Small_yellow_hallowtop_square_ = termcolor.colored('⋄', 'yellow')
+    Little_yellow_solid_square_ = termcolor.colored('▪', 'yellow')
+    Little_blue_solid_square_ = termcolor.colored('▪', 'blue')
+    Small_blue_little_circle_ = termcolor.colored('•', 'blue')
+    Small_yellow_little_circle_ = termcolor.colored('•', 'yellow')
+    Big_blue_hallowtop_circle_ = termcolor.colored('⦿', 'blue')
+    Big_yellow_hallowtop_circle_ = termcolor.colored('⦿', 'yellow')
+    Small_blue_hallowtop_circle_ = termcolor.colored('⚬', 'blue')
+    Small_yellow_hallowtop_circle_ = termcolor.colored('⚬', 'yellow')
+
+    emojies = {
+        'bbss': '\U0001F7E6',
+        'byss': '\U0001F7E8',
+        'sbss': f'{Little_blue_solid_square_} ',
+        'syss': f'{Little_yellow_solid_square_} ',
+        'bbhs': f'{Big_blue_hallowtop_square_} ',
+        'byhs': f'{Big_yellow_hallowtop_square_} ',
+        'sbhs': f'{Small_blue_hallowtop_square_} ',
+        'syhs': f'{Small_yellow_hallowtop_square_} ',
+        'bbsc': '\U0001F535',
+        'bysc': '\U0001F7E1',
+        'sbsc': f'{Small_blue_little_circle_} ',
+        'sysc': f'{Small_yellow_little_circle_} ',
+        'bbhc': f'{Big_blue_hallowtop_circle_} ',
+        'byhc': f'{Big_yellow_hallowtop_circle_} ',
+        'sbhc': f'{Small_blue_hallowtop_circle_} ',
+        'syhc': f'{Small_yellow_hallowtop_circle_} '
+    }
+
+    player_did_last_move = []
+    dic = {}
+    for i in range(1, 17):
+        dic[i] = ('empty', '  ')
+
+# -------------------------- Connect ----------------------------
 
 
 @server.event  # ye baksh ke migim client mitone behet etelaat bede

@@ -112,7 +112,7 @@ def is_user_name_valid_resp(user_name_validity_answer):
     global check_user_name
     global is_check_user_name_done
     if not user_name_validity_answer:
-        termcolor.colored(
+        termcolor.cprint(
             '''Sorry \U0001F927. Your user name is invalid.''', 'yellow', attrs=['bold'])
         check_user_name = False
         is_check_user_name_done = True
@@ -181,15 +181,15 @@ def get_rtbf_resp(rtbf_resp):
 # ------------------------ First Page ------------------------
 
 def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
-    Login_ = termcolor.colored('2) Leader board (enter 2)',
+    Login_ = termcolor.colored('2) Leaderboard (enter 2)',
                                'magenta', attrs=['bold'])
     Sign_up_ = termcolor.colored(
         '3) sign-up (enter 3)', 'yellow', attrs=['bold'])
     Help_page_ = termcolor.colored(
         '4) See "what is game about?" (enter 4)', 'green', attrs=['bold'])
 
-    About_me_ = termcolor.colored(
-        '5) About me (game creator) (enter 5)', 'blue', attrs=['bold'])
+    Some_talk_ = termcolor.colored(
+        '5) I have some talk to you! (enter 5)', 'blue', attrs=['bold'])
 
     Delete_account_ = termcolor.colored(
         '6) Delete account (Right To Be Forgotten) (enter 6)', 'green', attrs=['bold'])
@@ -198,12 +198,13 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         '7) Privacy Policy (enter 7)', 'yellow', attrs=['bold'])
 
     operation = input(termcolor.colored(f'''Hi \U0001F64B
+        NOTE: any time you want to close the game, simply use Ctrl + c
         What do you want to do?
         1) Login (enter 1)
         {Login_}
         {Sign_up_}
         {Help_page_}
-        {About_me_}
+        {Some_talk_}
         {Delete_account_}
         {Privacy_policy_}
         ''', 'cyan', attrs=['bold']))
@@ -222,9 +223,9 @@ def start():  # aval bazi in namayesh dadeh mishe ke user chikar mikhad kone
         start()
 
     elif operation == '5':
-        about_game_creator()
+        some_talk_text()
         back_to_menu = input(termcolor.colored(
-            'Enter any key to back to meny: ', 'cyan', attrs=['bold']))
+            'Enter any key to back to menu: ', 'cyan', attrs=['bold']))
         start()
 
     elif operation == '6':
@@ -270,9 +271,11 @@ def can_i_join(can_i):
 
 
 @client.on('choose_piece')
-def choose_piece(pieces):
-    choosed_piece = input(termcolor.colored(
-        f'pick a piece from {pieces}: \n', 'cyan', attrs=['bold']))
+def choose_piece(pieces_data):
+    pieces = pieces_data[0]
+    emojies = pieces_data[1]
+    choosed_piece = input(
+        f'pick a piece from {emojies}: \n')
 
     while choosed_piece not in pieces:  # avoid invalid input
         termcolor.cprint(
