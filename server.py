@@ -205,15 +205,10 @@ def get_choosen_move(sid, move):
     number = move
     shape = shape_to_move[0]
     movenumbers_can_choose.remove(str(number))
-    # while(number < 17):
     dic.update({number: (shape, shapes[shape])})
     table = place_table(dic)
 
-    # if count % 2 == 0:  # to seperate player1 and 2
     server.emit('get_board', table)
-
-    # else:
-    #    server.emit('get_board', table, room=ready_players[0])
 
     if not win_condition(dic):
         # ----------- START updating database for "tie" condition------
@@ -457,6 +452,7 @@ def connect(sid, environ, auth):
 # -------------------------- Disconnect ------------------------
 @server.event
 def disconnect(sid):
+    flag8 = False
     if sid in ready_players:
         for player in ready_players:
             if player != sid and player != None:
@@ -473,14 +469,15 @@ def disconnect(sid):
 
                 leader_board.update({sid_username_dic[player]: {'wins': leader_board[sid_username_dic[player]]
                                                                                     ['wins']+1, 'losses': leader_board[sid_username_dic[player]]['losses'], 'tie': leader_board[sid_username_dic[player]]['tie']}})
+                flag8 = True
+        if flag8:
+            # ------------- start updating leaderboard for loser ------------------------
+            leader_board.update({sid_username_dic[sid]: {'wins': leader_board[sid_username_dic[sid]]
+                                                         ['wins'], 'losses': leader_board[sid_username_dic[sid]]['losses']+1, 'tie': leader_board[sid_username_dic[sid]]['tie']}})
+            with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
+                f_write_leaderboard.write(str(leader_board))
 
-        # ------------- start updating leaderboard for loser ------------------------
-        leader_board.update({sid_username_dic[sid]: {'wins': leader_board[sid_username_dic[sid]]
-                                                     ['wins'], 'losses': leader_board[sid_username_dic[sid]]['losses']+1, 'tie': leader_board[sid_username_dic[sid]]['tie']}})
-        with open('leaderboard_file.txt', 'w') as f_write_leaderboard:
-            f_write_leaderboard.write(str(leader_board))
-
-        delete_ready_players_to_free_server()
+            delete_ready_players_to_free_server()
 
     print(sid, 'Disconnect ')
 

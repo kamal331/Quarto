@@ -328,7 +328,15 @@ def tie():
 
 
 # -----------------------------------
-client.connect("http://127.0.0.1:5000")
+domain_ip = input(termcolor.colored('Enter server address: ',
+                  'cyan', attrs=['bold']))  # http://127.0.0.1
+
+while domain_ip != 'http://127.0.0.1':
+    termcolor.cprint('Wrong IP address. Try again', 'yellow', attrs=['bold'])
+    domain_ip = input('Enter server address: ')  # http://127.0.0.1
+
+client.connect(f'{domain_ip}:5000')
+
 first_time = False
 start()
 first_time = True
